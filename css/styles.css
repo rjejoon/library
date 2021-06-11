@@ -96,12 +96,19 @@ body {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    opacity: 0;
+    visibility: hidden;
 }
 
 .material-icons {
     font-size: 35px;
-    /*visibility: hidden;*/
     transition: transform 0.2s;
+}
+
+.visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 .material-icons:hover {
@@ -109,10 +116,11 @@ body {
     transform: scale(1.1);
 }
 
-.material-icons.done-icon {
+.done-icon {
     color: #B2B2B2;
 }
 
-.material-icons.done-icon:hover {
-    color: red;
+.done-icon.done-read {
+    color: green;
+
 }

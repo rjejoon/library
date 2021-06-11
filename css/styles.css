@@ -1,3 +1,7 @@
+:root {
+    --nav-height: 7vh;
+
+}
 
 * {
     box-sizing: border-box;
@@ -15,20 +19,24 @@ body {
 
 #navbar {
     width: 100vw;
-    height: 5vh;
+    height: var(--nav-height);
     background-color: #D7F1FF;
 }
 
 #library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+    grid-gap: 1.3em 1.7em;
+
     width: 100vw;
-    height: 95vh;
+    min-height: calc(100% - var(--nav-height));
     background-color: #FCF6F5;
 
-    padding: 50px 50px;
+    padding: 50px 100px;
 }
 
 .book {
-    width: 278px;
+    /*width: clamp(200px, 25%, 278px);*/
     height: 349px;
 
     border: 1px solid rgba(0, 0, 0, 0.35);
@@ -38,7 +46,14 @@ body {
     box-shadow: 4px 6px 2px rgba(0, 0, 0, 0.25);
 
     font-family: Roboto, sans-serif;
+    
+    transition: transform 0.2s;
 }
+
+.book:hover {
+    transform: scale(1.05);
+}
+
 
 .book-info-container {
     width: 100%;
@@ -67,7 +82,7 @@ body {
 }
 
 .pages {
-    font-size: 1.375em;
+    font-size: 1.30em;
 }
 
 .button-container {
@@ -77,12 +92,27 @@ body {
     justify-content: space-between;
 
     padding: 0 20px;
+
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .material-icons {
     font-size: 35px;
+    /*visibility: hidden;*/
+    transition: transform 0.2s;
 }
 
-.material-icons.done {
+.material-icons:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.material-icons.done-icon {
     color: #B2B2B2;
+}
+
+.material-icons.done-icon:hover {
+    color: red;
 }

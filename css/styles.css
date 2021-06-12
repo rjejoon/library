@@ -54,6 +54,21 @@ body {
     transform: scale(1.05);
 }
 
+#add-book {
+    border: 1px dashed #000000;
+    background: rgba(255, 255, 255, 0.13);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+}
+
+.rotate-icon {
+    transform: rotate(20deg);
+}
+
 
 .book-info-container {
     width: 100%;

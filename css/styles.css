@@ -17,13 +17,36 @@ body {
     height: 100%;
 }
 
+.add-book-background {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    bottom: 100vh;
+    background: rgba(196, 196, 196, 0.5);
+    /*display: none;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#add-book-form {
+    width: 403px;
+    height: 454px;
+    background-color: #FFFBFB;
+    border: 1px solid #B2B2B2;
+    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 50px;
+}
+
 #navbar {
+    position: relative;
     width: 100vw;
     height: var(--nav-height);
     background-color: #D7F1FF;
 }
 
 #library-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(176px, 200px));
     grid-gap: 1.3em 1.7em;
@@ -33,6 +56,7 @@ body {
     background-color: #FCF6F5;
 
     padding: 50px 100px;
+    z-index: -1;
 }
 
 .book {

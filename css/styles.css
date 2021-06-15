@@ -36,6 +36,59 @@ body {
     border: 1px solid #B2B2B2;
     box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 50px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+
+    padding: 2.5rem 2.187rem;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+}
+
+#form-items-container {
+    height: 100%;
+
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#form-items-container > input {
+    font-size: 1em;
+    margin: 0.6em 0 0.8em 0;
+}
+
+#is-read-container {
+    height: 20px;
+}
+
+input[name="is-read"] {
+    display: inline;
+    margin: 0;
+}
+
+input[name="pages"] {
+    width: 30%;
+}
+
+#add-book-submit-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#add-book-submit-btn {
+    height: 36px;
+    width: 100px;
+    background: #BAE7FF;
+    border: 1px solid #4DC1FF;
+    border-radius: 50px;
+}
+
+#form-title {
+    font-size: 1.75em;
+    color: #555555;
+    height: 20%;
 }
 
 #navbar {

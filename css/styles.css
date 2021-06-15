@@ -159,6 +159,11 @@ body {
     align-items: center;
 }
 
+.add-book-background-visible {
+    display: flex;
+
+}
+
 .add-book-form {
     width: 403px;
     height: 454px;

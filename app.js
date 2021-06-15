@@ -2,6 +2,7 @@ const libraryGrid = document.querySelector('.library-grid');
 const addBookEle = document.querySelector('.add-book');
 const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
 const addBookForm = document.querySelector('.add-book-form');
+const addBookFormBg = document.querySelector('.add-book-background');
 
 const books = document.querySelectorAll('.book');
 
@@ -13,13 +14,18 @@ books.forEach(book => {
     }
 });
 
-addBookEle.addEventListener('mouseenter', addBookEnterHandler);
-addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
+window.addEventListener('DOMContentLoaded', e => {
 
-addBookFormSubmitBtn.addEventListener('mouseenter', e => e.target.classList.add('btn-mouseenter'));
-addBookFormSubmitBtn.addEventListener('mouseleave', e => e.target.classList.remove('btn-mouseenter'));
+    addBookEle.addEventListener('mouseenter', addBookEnterHandler);
+    addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
+    addBookEle.addEventListener('click', addBookClickHandler);
 
-addBookForm.addEventListener('submit', addBookToLibrary);
+    addBookFormSubmitBtn.addEventListener('mouseenter', e => e.target.classList.add('btn-mouseenter'));
+    addBookFormSubmitBtn.addEventListener('mouseleave', e => e.target.classList.remove('btn-mouseenter'));
+
+    addBookForm.addEventListener('submit', addBookToLibrary);
+    addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
+});
 
 
 function bookEnterHandler(e) {
@@ -40,6 +46,16 @@ function addBookEnterHandler(e) {
 
 function addBookLeaveHandler(e) {
     this.querySelector('.material-icons').classList.remove('rotate-icon');
+}
+
+function addBookClickHandler(e) {
+    addBookFormBg.classList.add('add-book-background-visible');
+}
+
+function addBookFormBgClickHandler(e) {
+    if (e.target === this) {
+        addBookFormBg.classList.remove('add-book-background-visible');
+    }
 }
 
 

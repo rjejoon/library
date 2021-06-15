@@ -57,7 +57,7 @@ body {
 }
 
 .add-book {
-    border: 1px dashed #000000;
+    border: 2px dashed #000000;
     background: rgba(255, 255, 255, 0.13);
 
     display: flex;
@@ -161,7 +161,6 @@ body {
 
 .add-book-background-visible {
     display: flex;
-
 }
 
 .add-book-form {

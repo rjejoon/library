@@ -85,7 +85,7 @@ function createBookElement({ title, author, pages, isRead }, index) {
 function addBookElementEvents(book) {
     book.addEventListener('mouseenter', bookEnterHandler);
     book.addEventListener('mouseleave', bookLeaveHandler);
-    book.querySelector('.done-icon').addEventListener('click', doneClickHandler); 
+    book.querySelector('.done-icon').addEventListener('click', isReadClickHandler); 
     book.querySelector('.del-book-icon').addEventListener('click', deleteBook);
 }
 
@@ -97,8 +97,11 @@ function bookLeaveHandler(e) {
     this.querySelector('.button-container').classList.remove('visible');
 }
 
-function doneClickHandler(e) {
+function isReadClickHandler(e) {
     this.classList.toggle('done-read');
+
+    const targetBook = this.parentElement.parentElement.parentElement;
+    myLibrary[targetBook.dataset['index']].isRead = !myLibrary[targetBook.dataset['index']].isRead;
 }
 
 function addBookEnterHandler(e) {

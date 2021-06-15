@@ -6,7 +6,6 @@ const addBookFormBg = document.querySelector('.add-book-background');
 
 let myLibrary = [];
 
-
 window.addEventListener('DOMContentLoaded', e => {
 
     addBookEle.addEventListener('mouseenter', addBookEnterHandler);
@@ -45,13 +44,6 @@ function addBookToLibrary(e) {
     addBookFormBg.classList.remove('add-book-background-visible');  // hide form
 }
 
-function updateLibrary() {
-
-    const booksHTML = myLibrary.map((book, index) => getBookHTMLTemplate(book, index));
-
-    libraryGrid.innerHTML = booksHTML.join('');
-}
-
 
 function createBookElement({ title, author, pages, isRead }, index) {
     const book = document.createElement('div');
@@ -75,10 +67,9 @@ function createBookElement({ title, author, pages, isRead }, index) {
 
     const btnContainer = document.createElement('div');
     btnContainer.classList.add('button-container');
-    console.log(isRead);
     btnContainer.innerHTML = `
         <span class="material-icons done-icon ${isRead ? "done-read" : ""}">done</span>
-        <span class="material-icons">delete_outline</span>`;
+        <span class="material-icons del-book-icon">delete_outline</span>`;
 
     bookInfoContainer.appendChild(titleEle);
     bookInfoContainer.appendChild(authorEle);
@@ -95,6 +86,7 @@ function addBookElementEvents(book) {
     book.addEventListener('mouseenter', bookEnterHandler);
     book.addEventListener('mouseleave', bookLeaveHandler);
     book.querySelector('.done-icon').addEventListener('click', doneClickHandler); 
+    book.querySelector('.del-book-icon').addEventListener('click', deleteBook);
 }
 
 function bookEnterHandler(e) {
@@ -124,6 +116,20 @@ function addBookClickHandler(e) {
 function addBookFormBgClickHandler(e) {
     if (e.target === this) {
         addBookFormBg.classList.remove('add-book-background-visible');
+    }
+}
+
+function deleteBook(e) {
+    const thisBook = this.parentElement.parentElement.parentElement;
+    const index = thisBook.dataset['index'];
+
+    myLibrary.splice(index, 1);         // delete this book obj 
+    thisBook.parentNode.removeChild(thisBook)       // delete this book element
+
+    const books = document.querySelectorAll('.book');
+
+    for (let i=index; i<books.length-1; i++) {      
+        books[i].dataset['index']--;    // update indexes after this book
     }
 }
 

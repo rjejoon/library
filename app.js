@@ -1,13 +1,14 @@
 const libraryGrid = document.querySelector('.library-grid');
-const books = document.querySelectorAll('.book');
 const addBookEle = document.querySelector('.add-book');
 const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
 const addBookForm = document.querySelector('.add-book-form');
 
+const books = document.querySelectorAll('.book');
+
 books.forEach(book => {
     if (!book.classList.contains('add-book')) {
-        book.addEventListener('mouseenter', bookEnterHandler)
-        book.addEventListener('mouseleave', bookLeaveHandler)
+        book.addEventListener('mouseenter', bookEnterHandler);
+        book.addEventListener('mouseleave', bookLeaveHandler);
         book.querySelector('.done-icon').addEventListener('click', doneClickHandler); 
     }
 });

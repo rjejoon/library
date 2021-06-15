@@ -16,8 +16,8 @@
   <link href="css/styles.css" rel="stylesheet" type="text/css" media="all"/>
 </head>
 <body>
-  <nav id="navbar"></nav>
-  <main id="library-grid">
+  <nav class="navbar"></nav>
+  <main class="library-grid">
     <div class="book">
       <div class="book-info-container">
         <span class="title">Harry Potter and the Philosopher's Stone</span>
@@ -29,28 +29,28 @@
         </div>
       </div>
     </div>
-    <div class="book" id="add-book">
+    <div class="book add-book">
       <span class="material-icons">add</span>
     </div>
   </main>
   
   <div class="add-book-background">
-    <form action="" id="add-book-form">
-      <div id="form-title">Add Book</div>
-      <div id="form-items-container">
+    <form action="" class="add-book-form">
+      <div class="form-title">Add Book</div>
+      <div class="form-items-container">
         <label for="title">Title</label>
-        <input type="text" id="title" name="title">
+        <input type="text" class="input-title" name="title">
         <label for="author">Author</label>
-        <input type="text" id="author" name="author">
+        <input type="text" class="input-author" name="author">
         <label for="pages">Pages</label>
-        <input type="number" id="pages" name="pages">
-        <div id="is-read-container">
+        <input type="number" class="input-pages" name="pages">
+        <div class="is-read-container">
           <label for="is-read">Read?</label>
-          <input type="checkbox" id="is-read" name="is-read">
+          <input type="checkbox" class="input-is-read" name="is-read">
         </div>
       </div>
-      <div id="add-book-submit-container">
-        <button id="add-book-submit-btn" type="submit">Add</button>
+      <div class="add-book-submit-container">
+        <button class="add-book-submit-btn" type="submit">Add</button>
       </div>
     </form>
   </div>

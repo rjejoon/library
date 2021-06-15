@@ -29,7 +29,7 @@ body {
     align-items: center;
 }
 
-#add-book-form {
+.add-book-form {
     width: 403px;
     height: 454px;
     background-color: #FFFBFB;
@@ -46,19 +46,22 @@ body {
     font-weight: 400;
 }
 
-#form-items-container {
+
+/*      form rules    */
+
+.form-items-container {
     height: 100%;
 
     display: flex;
     flex-flow: column nowrap;
 }
 
-#form-items-container > input {
+.form-items-container > input {
     font-size: 1em;
     margin: 0.6em 0 0.8em 0;
 }
 
-#is-read-container {
+.is-read-container {
     height: 20px;
 }
 
@@ -71,34 +74,49 @@ input[name="pages"] {
     width: 30%;
 }
 
-#add-book-submit-container {
+.add-book-submit-container {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-#add-book-submit-btn {
+.add-book-submit-btn {
     height: 36px;
     width: 100px;
     background: #BAE7FF;
     border: 1px solid #4DC1FF;
     border-radius: 50px;
+
+    transition: filter 0.2s;
 }
 
-#form-title {
+.add-book-submit-btn:hover {
+    cursor: pointer;
+    filter: brightness(75%);
+}
+
+.add-book-submit-btn:active {
+    filter: brightness(60%);
+}
+
+.form-title {
     font-size: 1.75em;
     color: #555555;
     height: 20%;
 }
 
-#navbar {
+
+
+
+
+.navbar {
     position: relative;
     width: 100vw;
     height: var(--nav-height);
     background-color: #D7F1FF;
 }
 
-#library-grid {
+.library-grid {
     position: relative;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(176px, 200px));
@@ -131,7 +149,7 @@ input[name="pages"] {
     transform: scale(1.05);
 }
 
-#add-book {
+.add-book {
     border: 1px dashed #000000;
     background: rgba(255, 255, 255, 0.13);
 
@@ -217,3 +235,4 @@ input[name="pages"] {
     color: green;
 
 }
+

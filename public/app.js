@@ -38,15 +38,18 @@ function authStateObserver(user) {
         const profileUrl = getProfilePicUrl();
         const userName = getUserName();
 
-        const profileEle = signedInUserContainer.querySelector('.profile-img');
         profileEle.style.backgroundImage = `url(${profileUrl})`;
 
+        signInBtn.setAttribute('hidden', 'true');   // hide signin btn
 
-        signInBtn.setAttribute('hidden', 'true');
-        signedInUserContainer.removeAttribute('hidden');
+        // show signed in user info
+        signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
+        profileEle.removeAttribute('hidden');
     }
     else {
-        signedInUserContainer.setAttribute('hidden', 'true');
+        // hide signed in user info
+        signedInUserContainer.querySelector('.sign-out-btn').setAttribute('hidden', 'true');
+        profileEle.setAttribute('hidden', 'true');
 
         // show signin button
         signInBtn.removeAttribute('hidden');
@@ -59,9 +62,11 @@ const addBookEle = document.querySelector('.add-book');
 const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
 const addBookForm = document.querySelector('.add-book-form');
 const addBookFormBg = document.querySelector('.add-book-background');
+
 const signInBtn = document.querySelector('.sign-in-btn');
 const signedInUserContainer = document.querySelector('.signed-in-user-container');
 const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
+const profileEle = signedInUserContainer.querySelector('.profile-img');
 
 let myLibrary = [];
 

@@ -54,7 +54,12 @@ function authStateObserver(user) {
         // show signin button
         signInBtn.removeAttribute('hidden');
     }
+}
 
+function saveBook(book, index) {
+    console.log({...book, index});
+    return firebase.firestore().collection('book').add({ ...book, index })
+                .catch(error => console.error('Error writing new book to database', error));
 }
 
 const libraryGrid = document.querySelector('.library-grid');
@@ -101,14 +106,17 @@ function addBookToLibrary(e) {
     const author = this.elements[1].value;
     const pages = this.elements[2].value;
     const isRead = this.elements[3].checked;
+    const index = myLibrary.length;
 
     const book = new Book(title, author, pages, isRead);
     myLibrary.push(book);
 
-    const bookEle = createBookElement(book, myLibrary.length-1);
+    const bookEle = createBookElement(book, index);
     libraryGrid.insertBefore(bookEle, addBookEle);
+    saveBook(book, index);
 
-    addBookFormBg.classList.remove('add-book-background-visible');  // hide form
+
+    addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form
 }
 
 

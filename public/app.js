@@ -10,9 +10,47 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+initFirebaseAuth();
+
+function initFirebaseAuth() {
+    firebase.auth().onAuthStateChanged(authStateObserver);
+}
 
 function signIn() {
     let provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+}
+
+function signOut() {
+    firebase.auth().signOut();
+}
+
+function getProfilePicUrl() {
+    return firebase.auth().currentUser.photoURL ?? '/images/profile_placeholder.jpeg';
+}
+
+function getUserName() {
+    return firebase.auth().currentUser.displayName;
+}
+
+function authStateObserver(user) {
+    if (user) {
+        const profileUrl = getProfilePicUrl();
+        const userName = getUserName();
+
+        const profileEle = signedInUserContainer.querySelector('.profile-img');
+        profileEle.style.backgroundImage = `url(${profileUrl})`;
+
+
+        signInBtn.setAttribute('hidden', 'true');
+        signedInUserContainer.removeAttribute('hidden');
+    }
+    else {
+        signedInUserContainer.setAttribute('hidden', 'true');
+
+        // show signin button
+        signInBtn.removeAttribute('hidden');
+    }
 
 }
 
@@ -21,6 +59,9 @@ const addBookEle = document.querySelector('.add-book');
 const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
 const addBookForm = document.querySelector('.add-book-form');
 const addBookFormBg = document.querySelector('.add-book-background');
+const signInBtn = document.querySelector('.sign-in-btn');
+const signedInUserContainer = document.querySelector('.signed-in-user-container');
+const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
 
 let myLibrary = [];
 
@@ -35,6 +76,9 @@ window.addEventListener('DOMContentLoaded', e => {
 
     addBookForm.addEventListener('submit', addBookToLibrary);
     addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
+
+    signInBtn.addEventListener('click', signIn);
+    signOutBtn.addEventListener('click', signOut);
 });
 
 

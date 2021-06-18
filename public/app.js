@@ -12,6 +12,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 initFirebaseAuth();
 
+
 function initFirebaseAuth() {
     firebase.auth().onAuthStateChanged(authStateObserver);
 }
@@ -50,7 +51,7 @@ function authStateObserver(user) {
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
 
-        retrieveBooks();
+        //retrieveBooks();
     }
     else {
         // hide signed in user info
@@ -64,10 +65,21 @@ function authStateObserver(user) {
     }
 }
 
+function retrieveBooks() {
+    db.collection('books').where('uid', '==', getUserId)
+        .get()
+        .then((querySnapshot) => {
+
+        })
+        .catch(error => {
+            console.error("Error getting documents: ", error);
+        });
+}
+
 // TODO delete if not necessary
 function saveBook(book, index) {
-    return firebase.firestore().collection('books').add(
-        { 
+    const bookId = book.title + book.author + getUserId();      // TODO hash this str
+    return firebase.firestore().collection('books').doc(bookId).set({ 
             ...book, 
             index,
             uid: getUserId(),
@@ -102,6 +114,7 @@ const signedInUserContainer = document.querySelector('.signed-in-user-container'
 const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
 const profileEle = signedInUserContainer.querySelector('.profile-img');
 
+
 let myLibrary = [];
 
 window.addEventListener('DOMContentLoaded', e => {
@@ -120,6 +133,18 @@ window.addEventListener('DOMContentLoaded', e => {
     signOutBtn.addEventListener('click', signOut);
 });
 
+
+function clearLibrary() {
+    myLibrary = [];
+    const books = libraryGrid.querySelectorAll('.book');
+
+    console.log('clearing');
+
+    // remove all books except for add book
+    for (let i=0; i<books.length-1; i++) {
+        libraryGrid.removeChild(libraryGrid.firstElementChild);
+    }
+}
 
 function Book(title='', author='', pages='', isRead=false) {
     // constructor
@@ -239,19 +264,6 @@ function deleteBook(e) {
         books[i].dataset['index']--;    // update indexes after this book
     }
 }
-
-function clearLibrary() {
-    myLibrary = [];
-    const books = libraryGrid.querySelectorAll('.book');
-
-    console.log('clearing');
-
-    // remove all books except for add book
-    for (let i=0; i<books.length-1; i++) {
-        libraryGrid.removeChild(libraryGrid.firstElementChild);
-    }
-}
-
 
 
 

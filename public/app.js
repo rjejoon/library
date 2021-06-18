@@ -49,6 +49,8 @@ function authStateObserver(user) {
         // show signed in user info
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
+
+        retrieveBooks();
     }
     else {
         // hide signed in user info
@@ -58,7 +60,7 @@ function authStateObserver(user) {
         // show signin button
         signInBtn.removeAttribute('hidden');
 
-        // TODO clear library
+        clearLibrary();
     }
 }
 
@@ -235,6 +237,18 @@ function deleteBook(e) {
 
     for (let i=index; i<books.length-1; i++) {      
         books[i].dataset['index']--;    // update indexes after this book
+    }
+}
+
+function clearLibrary() {
+    myLibrary = [];
+    const books = libraryGrid.querySelectorAll('.book');
+
+    console.log('clearing');
+
+    // remove all books except for add book
+    for (let i=0; i<books.length-1; i++) {
+        libraryGrid.removeChild(libraryGrid.firstElementChild);
     }
 }
 

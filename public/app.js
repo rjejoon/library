@@ -78,7 +78,7 @@ function retrieveBooks() {
 
 // TODO delete if not necessary
 function saveBook(book, index) {
-    const bookId = book.title + book.author + getUserId();      // TODO hash this str
+    const bookId = book.title + book.author + getUserId();      
     return firebase.firestore().collection('books').doc(bookId).set({ 
             ...book, 
             index,

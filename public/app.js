@@ -45,6 +45,8 @@ function authStateObserver(user) {
         // show signed in user info
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
+
+        saveUser(user);
     }
     else {
         // hide signed in user info
@@ -57,10 +59,29 @@ function authStateObserver(user) {
 }
 
 function saveBook(book, index) {
-    console.log({...book, index});
-    return firebase.firestore().collection('book').add({ ...book, index })
-                .catch(error => console.error('Error writing new book to database', error));
+    return firebase.firestore().collection('book').add(
+        { 
+            ...book, 
+            index,
+        }).catch(error => console.error('Error writing new book to database', error));
 }
+
+function saveUser(user) {
+    console.log(user.uid);
+    return firebase.firestore().collection('users').doc(user.uid).set({
+            username: user.displayName,
+            email: user.email,
+            profileUrl: user.photoURL
+    }).catch(error => console.error("Unable to retrieve user token id", error));
+}
+
+
+
+
+
+
+
+
 
 const libraryGrid = document.querySelector('.library-grid');
 const addBookEle = document.querySelector('.add-book');

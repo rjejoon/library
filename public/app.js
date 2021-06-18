@@ -33,6 +33,10 @@ function getUserName() {
     return firebase.auth().currentUser.displayName;
 }
 
+function getUserId() {
+    return firebase.auth().currentUser.uid;
+}
+
 function authStateObserver(user) {
     if (user) {
         const profileUrl = getProfilePicUrl();
@@ -45,8 +49,6 @@ function authStateObserver(user) {
         // show signed in user info
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
-
-        saveUser(user);
     }
     else {
         // hide signed in user info
@@ -55,14 +57,18 @@ function authStateObserver(user) {
 
         // show signin button
         signInBtn.removeAttribute('hidden');
+
+        // TODO clear library
     }
 }
 
+// TODO delete if not necessary
 function saveBook(book, index) {
-    return firebase.firestore().collection('book').add(
+    return firebase.firestore().collection('books').add(
         { 
             ...book, 
             index,
+            uid: getUserId(),
         }).catch(error => console.error('Error writing new book to database', error));
 }
 
@@ -72,7 +78,7 @@ function saveUser(user) {
             username: user.displayName,
             email: user.email,
             profileUrl: user.photoURL
-    }).catch(error => console.error("Unable to retrieve user token id", error));
+    }).catch(error => console.error("Unable to save user", error));
 }
 
 

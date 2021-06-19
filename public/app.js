@@ -108,11 +108,6 @@ function saveUser(user) {
 
 
 
-
-
-
-
-
 const libraryGrid = document.querySelector('.library-grid');
 const addBookEle = document.querySelector('.add-book');
 const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
@@ -248,6 +243,7 @@ function addBookLeaveHandler(e) {
 
 function addBookClickHandler(e) {
     addBookFormBg.classList.add('add-book-background-visible');
+    resetAddBookForm();
 }
 
 function addBookFormBgClickHandler(e) {
@@ -269,6 +265,12 @@ function deleteBook(e) {
     }
 }
 
+function resetAddBookForm() {
+    console.log(addBookForm.elements);
+    addBookForm.elements[0].value = '';
+    addBookForm.elements[1].value = '';
+    addBookForm.elements[2].value = '';
+}
 
 
 

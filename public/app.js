@@ -11,6 +11,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 initFirebaseAuth();
+
 const db = firebase.firestore();
 
 
@@ -52,7 +53,7 @@ function authStateObserver(user) {
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
 
-        retrieveBooks();
+        retrieveBooksFromDb();
     }
     else {
         // hide signed in user info
@@ -66,14 +67,16 @@ function authStateObserver(user) {
     }
 }
 
-function retrieveBooks() {
-    console.log('retrieving');
-    db.collection('users').doc(getUserId())
+function retrieveBooksFromDb() {
+    return db.collection('users').doc(getUserId())
         .collection('books').where('uid', '==', getUserId())
         .get()
         .then((querySnapshot) => {
             querySnapshot.forEach(doc => {
-                console.log(doc.id, ' => ', doc.data());
+                const bookData = doc.data();
+                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead)
+                const bookEle = createBookElement(book, bookData.index);
+                libraryGrid.insertBefore(bookEle, addBookEle);
             });
         })
         .catch(error => {
@@ -85,7 +88,7 @@ function saveBook(user, book, index) {
     saveUser(user);
 
     const uid = getUserId();
-    const bookId = book.title + book.author;      
+    const bookId = index + book.title + book.author;    // prepend index for auto sorting
     return db.collection('users').doc(uid).collection('books').doc(bookId).set({ 
             ...book, 
             index,
@@ -121,9 +124,6 @@ const signedInUserContainer = document.querySelector('.signed-in-user-container'
 const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
 const profileEle = signedInUserContainer.querySelector('.profile-img');
 
-
-let myLibrary = [];
-
 window.addEventListener('DOMContentLoaded', e => {
 
     addBookEle.addEventListener('mouseenter', addBookEnterHandler);
@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', e => {
     addBookFormSubmitBtn.addEventListener('mouseenter', e => e.target.classList.add('btn-mouseenter'));
     addBookFormSubmitBtn.addEventListener('mouseleave', e => e.target.classList.remove('btn-mouseenter'));
 
-    addBookForm.addEventListener('submit', addBookToLibrary);
+    addBookForm.addEventListener('submit', addBookToLibraryGrid);
     addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
 
     signInBtn.addEventListener('click', signIn);
@@ -142,7 +142,6 @@ window.addEventListener('DOMContentLoaded', e => {
 
 
 function clearLibrary() {
-    myLibrary = [];
     const books = libraryGrid.querySelectorAll('.book');
 
     console.log('clearing');
@@ -161,23 +160,25 @@ function Book(title='', author='', pages='', isRead=false) {
     this.isRead = isRead;
 }
 
-function addBookToLibrary(e) {
-    e.preventDefault();
+function addBookToLibraryGrid(event) {
+    event.preventDefault();
     const title = this.elements[0].value;
     const author = this.elements[1].value;
     const pages = this.elements[2].value;
     const isRead = this.elements[3].checked;
-    const index = myLibrary.length;
+    const index = getFirstFreeBookIndex();
 
     const book = new Book(title, author, pages, isRead);
-    myLibrary.push(book);
 
     const bookEle = createBookElement(book, index);
     libraryGrid.insertBefore(bookEle, addBookEle);
     saveBook(firebase.auth().currentUser, book, index);
 
-
     addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form
+}
+
+function getFirstFreeBookIndex() {
+    return libraryGrid.querySelectorAll('.book').length - 1;     // exclude add book element
 }
 
 
@@ -235,9 +236,6 @@ function bookLeaveHandler(e) {
 
 function isReadClickHandler(e) {
     this.classList.toggle('done-read');
-
-    const targetBook = this.parentElement.parentElement.parentElement;
-    myLibrary[targetBook.dataset['index']].isRead = !myLibrary[targetBook.dataset['index']].isRead;
 }
 
 function addBookEnterHandler(e) {
@@ -262,7 +260,6 @@ function deleteBook(e) {
     const thisBook = this.parentElement.parentElement.parentElement;
     const index = thisBook.dataset['index'];
 
-    myLibrary.splice(index, 1);         // delete this book obj 
     thisBook.parentNode.removeChild(thisBook)       // delete this book element
 
     const books = document.querySelectorAll('.book');

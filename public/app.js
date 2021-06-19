@@ -11,6 +11,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 initFirebaseAuth();
+const db = firebase.firestore();
 
 
 function initFirebaseAuth() {
@@ -51,7 +52,7 @@ function authStateObserver(user) {
         signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
         profileEle.removeAttribute('hidden');
 
-        //retrieveBooks();
+        retrieveBooks();
     }
     else {
         // hide signed in user info
@@ -66,20 +67,26 @@ function authStateObserver(user) {
 }
 
 function retrieveBooks() {
-    db.collection('books').where('uid', '==', getUserId)
+    console.log('retrieving');
+    db.collection('users').doc(getUserId())
+        .collection('books').where('uid', '==', getUserId())
         .get()
         .then((querySnapshot) => {
-
+            querySnapshot.forEach(doc => {
+                console.log(doc.id, ' => ', doc.data());
+            });
         })
         .catch(error => {
             console.error("Error getting documents: ", error);
         });
 }
 
-// TODO delete if not necessary
-function saveBook(book, index) {
-    const bookId = book.title + book.author + getUserId();      
-    return firebase.firestore().collection('books').doc(bookId).set({ 
+function saveBook(user, book, index) {
+    saveUser(user);
+
+    const uid = getUserId();
+    const bookId = book.title + book.author;      
+    return db.collection('users').doc(uid).collection('books').doc(bookId).set({ 
             ...book, 
             index,
             uid: getUserId(),
@@ -88,7 +95,7 @@ function saveBook(book, index) {
 
 function saveUser(user) {
     console.log(user.uid);
-    return firebase.firestore().collection('users').doc(user.uid).set({
+    return firebase.firestore().collection('users').doc(getUserId()).set({
             username: user.displayName,
             email: user.email,
             profileUrl: user.photoURL
@@ -167,7 +174,7 @@ function addBookToLibrary(e) {
 
     const bookEle = createBookElement(book, index);
     libraryGrid.insertBefore(bookEle, addBookEle);
-    saveBook(book, index);
+    saveBook(firebase.auth().currentUser, book, index);
 
 
     addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form

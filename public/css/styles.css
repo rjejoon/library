@@ -194,9 +194,10 @@ body {
 
 .add-book-background {
     position: absolute;
+    z-index: 1;
+
     width: 100vw;
     height: 100vh;
-    bottom: 100vh;
     background: rgba(196, 196, 196, 0.5);
 
     display: none;

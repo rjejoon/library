@@ -190,14 +190,15 @@ body {
 }
 
 
-/*      form rules    */
+/*  form rules  */
 
 .add-book-background {
-    position: relative;
+    position: absolute;
     width: 100vw;
     height: 100vh;
     bottom: 100vh;
     background: rgba(196, 196, 196, 0.5);
+
     display: none;
     /*display: flex;*/
     justify-content: center;

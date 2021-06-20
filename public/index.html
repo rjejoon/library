@@ -16,6 +16,20 @@
   <link href="css/styles.css" rel="stylesheet" type="text/css" media="all"/>
 </head>
 <body>
+  <nav class="navbar">
+    <span class="nav-title">Library</span>
+    <button class="auth-btn sign-in-btn" type="button">Sign In</button>
+    <div class="signed-in-user-container">
+      <div class="profile-img" hidden="true"></div>
+      <button class="auth-btn sign-out-btn" hidden="true">Sign Out</button>
+    </div>
+  </nav>
+  <main class="library-grid">
+    <div class="book add-book">
+      <span class="material-icons">add</span>
+    </div>
+  </main>
+  
   <div class="add-book-background">
     <form action="" class="add-book-form">
       <div class="form-title">Add Book</div>
@@ -36,20 +50,6 @@
       </div>
     </form>
   </div>
-  <nav class="navbar">
-    <span class="nav-title">Library</span>
-    <button class="auth-btn sign-in-btn" type="button">Sign In</button>
-    <div class="signed-in-user-container">
-      <div class="profile-img" hidden="true"></div>
-      <button class="auth-btn sign-out-btn" hidden="true">Sign Out</button>
-    </div>
-  </nav>
-  <main class="library-grid">
-    <div class="book add-book">
-      <span class="material-icons">add</span>
-    </div>
-  </main>
-  
 
   <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
   <script src="/__/firebase/8.6.7/firebase-app.js"></script>

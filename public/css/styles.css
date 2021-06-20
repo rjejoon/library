@@ -18,7 +18,7 @@ body {
 }
 
 .navbar {
-    position: relative;
+    position: absolute;
     width: 100vw;
     height: var(--nav-height);
     background-color: #E4E4E4;
@@ -70,7 +70,8 @@ body {
 
 
 .library-grid {
-    position: relative;
+    position: absolute;
+    top: var(--nav-height);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(176px, 200px));
     grid-gap: 1.3em 1.7em;

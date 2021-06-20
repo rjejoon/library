@@ -69,12 +69,12 @@ function authStateObserver(user) {
 
 function retrieveBooksFromDb() {
     return db.collection('users').doc(getUserId())
-        .collection('books').where('uid', '==', getUserId())
+        .collection('books').where('uid', '==', getUserId()).orderBy('index')
         .get()
         .then((querySnapshot) => {
             querySnapshot.forEach(doc => {
                 const bookData = doc.data();
-                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead)
+                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
                 const bookEle = createBookElement(book, bookData.index);
                 libraryGrid.insertBefore(bookEle, addBookEle);
             });
@@ -88,7 +88,7 @@ function saveBook(user, book, index) {
     saveUser(user);
 
     const uid = getUserId();
-    const bookId = index + book.title + book.author;    // prepend index for auto sorting
+    const bookId = getBookId(book);   
     return db.collection('users').doc(uid).collection('books').doc(bookId).set({ 
             ...book, 
             index,
@@ -96,8 +96,11 @@ function saveBook(user, book, index) {
         }).catch(error => console.error('Error writing new book to database', error));
 }
 
+function getBookId(book) {
+    return book.title + book.author;
+}
+
 function saveUser(user) {
-    console.log(user.uid);
     return firebase.firestore().collection('users').doc(getUserId()).set({
             username: user.displayName,
             email: user.email,
@@ -139,8 +142,6 @@ window.addEventListener('DOMContentLoaded', e => {
 function clearLibrary() {
     const books = libraryGrid.querySelectorAll('.book');
 
-    console.log('clearing');
-
     // remove all books except for add book
     for (let i=0; i<books.length-1; i++) {
         libraryGrid.removeChild(libraryGrid.firstElementChild);
@@ -153,6 +154,16 @@ function Book(title='', author='', pages='', isRead=false) {
     this.author = author;
     this.pages = pages;
     this.isRead = isRead;
+}
+
+function createBookFromBookElement(bookElement) {
+
+    const title = bookElement.querySelector('.title').textContent;
+    const author = bookElement.querySelector('.author').textContent;
+    const pages = bookElement.querySelector('.pages').textContent.split(' ')[0];
+    const isRead = bookElement.querySelector('.done-icon').classList.contains('done-read');
+
+    return new Book(title, author, pages, isRead);
 }
 
 function addBookToLibraryGrid(event) {
@@ -252,21 +263,51 @@ function addBookFormBgClickHandler(e) {
     }
 }
 
-function deleteBook(e) {
-    const thisBook = this.parentElement.parentElement.parentElement;
-    const index = thisBook.dataset['index'];
+function deleteBook(event) {
+    const thisBookElement = this.parentElement.parentElement.parentElement;
+    const book = createBookFromBookElement(thisBookElement);
+    const index = parseInt(thisBookElement.dataset['index']);
 
-    thisBook.parentNode.removeChild(thisBook)       // delete this book element
+    thisBookElement.parentNode.removeChild(thisBookElement)       // delete this book element
 
     const books = document.querySelectorAll('.book');
 
     for (let i=index; i<books.length-1; i++) {      
         books[i].dataset['index']--;    // update indexes after this book
     }
+
+    deleteBookFromDb(book, index);
+}
+
+function deleteBookFromDb(book, index) {
+    const userRef = db.collection('users').doc(getUserId());
+
+    return userRef.collection('books').doc(getBookId(book)).delete()
+        .then(() => {
+            dbUpdateIndexAfter(index)
+        })
+        .catch(error => console.error("Error: cannot delete book", error));
+}
+
+function dbUpdateIndexAfter(targetIndex) {
+    const userRef = db.collection('users').doc(getUserId());
+
+    return userRef.collection('books').where('index', '>=', targetIndex)
+        .get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach(doc => {
+                console.log(doc.data());
+                const bookData = doc.data();
+                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
+                console.log(getBookId(book));
+                userRef.collection('books').doc(getBookId(book)).update({
+                    index: firebase.firestore.FieldValue.increment(-1)
+                });
+            });
+        }).catch(error => console.error("Error: cannot update book", error));
 }
 
 function resetAddBookForm() {
-    console.log(addBookForm.elements);
     addBookForm.elements[0].value = '';
     addBookForm.elements[1].value = '';
     addBookForm.elements[2].value = '';

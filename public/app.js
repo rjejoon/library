@@ -14,6 +14,37 @@ initFirebaseAuth();
 
 const db = firebase.firestore();
 
+const libraryGrid = document.querySelector('.library-grid');
+const addBookEle = document.querySelector('.add-book');
+
+const addBookForm = document.querySelector('.add-book-form');
+const addBookFormBg = document.querySelector('.add-book-background');
+
+const updateBookForm = document.querySelector('.update-book-form');
+const updateBookFormBg = document.querySelector('.update-book-background');
+
+const signInBtn = document.querySelector('.sign-in-btn');
+const signedInUserContainer = document.querySelector('.signed-in-user-container');
+const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
+const profileEle = signedInUserContainer.querySelector('.profile-img');
+
+window.addEventListener('DOMContentLoaded', e => {
+
+    addBookEle.addEventListener('mouseenter', addBookEnterHandler);
+    addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
+    addBookEle.addEventListener('click', addBookClickHandler);
+
+    addBookForm.addEventListener('submit', addBookToLibraryGrid);
+    addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
+
+    //updateBookForm.addEventListener('submit', updateBook);
+    updateBookFormBg.addEventListener('click', updateBookFormBgClickHandler);
+
+    signInBtn.addEventListener('click', signIn);
+    signOutBtn.addEventListener('click', signOut);
+});
+
+
 
 function initFirebaseAuth() {
     firebase.auth().onAuthStateChanged(authStateObserver);
@@ -108,37 +139,6 @@ function saveUser(user) {
     }).catch(error => console.error("Unable to save user", error));
 }
 
-
-
-
-const libraryGrid = document.querySelector('.library-grid');
-const addBookEle = document.querySelector('.add-book');
-const addBookFormSubmitBtn = document.querySelector('.add-book-submit-btn');
-const addBookForm = document.querySelector('.add-book-form');
-const addBookFormBg = document.querySelector('.add-book-background');
-
-const signInBtn = document.querySelector('.sign-in-btn');
-const signedInUserContainer = document.querySelector('.signed-in-user-container');
-const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
-const profileEle = signedInUserContainer.querySelector('.profile-img');
-
-window.addEventListener('DOMContentLoaded', e => {
-
-    addBookEle.addEventListener('mouseenter', addBookEnterHandler);
-    addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
-    addBookEle.addEventListener('click', addBookClickHandler);
-
-    addBookFormSubmitBtn.addEventListener('mouseenter', e => e.target.classList.add('btn-mouseenter'));
-    addBookFormSubmitBtn.addEventListener('mouseleave', e => e.target.classList.remove('btn-mouseenter'));
-
-    addBookForm.addEventListener('submit', addBookToLibraryGrid);
-    addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
-
-    signInBtn.addEventListener('click', signIn);
-    signOutBtn.addEventListener('click', signOut);
-});
-
-
 function clearLibrary() {
     const books = libraryGrid.querySelectorAll('.book');
 
@@ -187,7 +187,6 @@ function getFirstFreeBookIndex() {
     return libraryGrid.querySelectorAll('.book').length - 1;     // exclude add book element
 }
 
-
 function createBookElement({ title, author, pages, isRead }, index) {
     const book = document.createElement('div');
     book.classList.add('book')
@@ -220,6 +219,7 @@ function createBookElement({ title, author, pages, isRead }, index) {
     bookInfoContainer.appendChild(btnContainer);
     
     book.appendChild(bookInfoContainer);
+    console.log(book);
     addBookElementEvents(book);
 
     return book;
@@ -228,6 +228,7 @@ function createBookElement({ title, author, pages, isRead }, index) {
 function addBookElementEvents(book) {
     book.addEventListener('mouseenter', bookEnterHandler);
     book.addEventListener('mouseleave', bookLeaveHandler);
+    book.addEventListener('click', toggleUpdateForm);
     book.querySelector('.done-icon').addEventListener('click', isReadClickHandler); 
     book.querySelector('.del-book-icon').addEventListener('click', deleteBook);
 }
@@ -238,6 +239,19 @@ function bookEnterHandler(e) {
 
 function bookLeaveHandler(e) {
     this.querySelector('.button-container').classList.remove('visible');
+}
+
+function toggleUpdateForm(event) {
+
+    if (!event.target.classList.contains('material-icons')) {       // toggle form when clicked anywhere other than buttons
+        updateBookFormBg.classList.add('update-book-background-visible');
+
+        const book = createBookFromBookElement(this);
+        updateBookForm.elements[0].value = book.title;
+        updateBookForm.elements[1].value = book.author 
+        updateBookForm.elements[2].value = book.pages;
+        updateBookForm.elements[3].checked = book.isRead;;
+    }
 }
 
 function isReadClickHandler(e) {
@@ -260,6 +274,12 @@ function addBookClickHandler(e) {
 function addBookFormBgClickHandler(e) {
     if (e.target === this) {
         addBookFormBg.classList.remove('add-book-background-visible');
+    }
+}
+
+function updateBookFormBgClickHandler(e) {
+    if (e.target === this) {
+        updateBookFormBg.classList.remove('update-book-background-visible');
     }
 }
 

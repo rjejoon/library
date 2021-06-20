@@ -193,7 +193,8 @@ body {
 
 /*  form rules  */
 
-.add-book-background {
+.add-book-background,
+.update-book-background {
     position: absolute;
     z-index: 1;
 
@@ -207,11 +208,13 @@ body {
     align-items: center;
 }
 
-.add-book-background-visible {
+.add-book-background-visible,
+.update-book-background-visible {
     display: flex;
 }
 
-.add-book-form {
+.add-book-form,
+.update-book-form {
     width: 403px;
     height: 454px;
     background-color: #FFFBFB;
@@ -255,13 +258,15 @@ input[name="pages"] {
     width: 30%;
 }
 
-.add-book-submit-container {
+.add-book-submit-container,
+.update-book-submit-container {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.add-book-submit-btn {
+.add-book-submit-btn,
+.update-book-submit-btn {
     height: 36px;
     width: 100px;
     background: #BAE7FF;
@@ -271,12 +276,14 @@ input[name="pages"] {
     transition: filter 0.2s;
 }
 
-.add-book-submit-btn:hover {
+.add-book-submit-btn:hover,
+.update-book-submit-btn:hover {
     cursor: pointer;
     filter: brightness(75%);
 }
 
-.add-book-submit-btn:active {
+.add-book-submit-btn:active,
+.update-book-submit-btn:active {
     filter: brightness(60%);
 }
 

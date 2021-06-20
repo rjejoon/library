@@ -237,13 +237,15 @@ body {
 .form-items-container > input {
     font-size: 1em;
     margin: 0.6em 0 0.8em 0;
+
+    border: 1px solid #8f8f9d;
 }
 
 .is-read-container {
     height: 20px;
 }
 
-input[name="is-read"] {
+.input-is-read {
     display: inline;
     margin: 0;
 }

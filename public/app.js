@@ -37,7 +37,7 @@ window.addEventListener('DOMContentLoaded', e => {
     addBookForm.addEventListener('submit', addBookToLibraryGrid);
     addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
 
-    //updateBookForm.addEventListener('submit', updateBook);
+    updateBookForm.addEventListener('submit', updateBook);
     updateBookFormBg.addEventListener('click', updateBookFormBgClickHandler);
 
     signInBtn.addEventListener('click', signIn);
@@ -187,6 +187,45 @@ function getFirstFreeBookIndex() {
     return libraryGrid.querySelectorAll('.book').length - 1;     // exclude add book element
 }
 
+function updateBook(event) {
+    event.preventDefault();
+    const title = this.elements[0].value;
+    const author = this.elements[1].value;
+    const pages = this.elements[2].value;
+    const isRead = this.elements[3].checked;
+    const index = this.dataset['index'];
+
+    const targetBookElement = libraryGrid.querySelector(`.book[data-index="${index}"]`)
+    const originalBook = createBookFromBookElement(targetBookElement);
+    const updatedBook = new Book(title, author, pages, isRead);
+
+    updateBookElement(targetBookElement, updatedBook);
+
+    dbBookUpdate(firebase.auth().currentUser, originalBook, updatedBook, index);
+
+    updateBookFormBg.classList.remove('update-book-background-visible');  // hide update book form
+}
+
+function updateBookElement(targetBookElement, updatedBook) {
+
+    updateBookElement(originalBook, index, updatedBook);
+    targetBookElement.querySelector('.title').textContent = updatedBook.title;
+    targetBookElement.querySelector('.author').textContent = updatedBook.author;
+    targetBookElement.querySelector('.pages').textContent = `${updatedBook.pages} pages`;
+    targetBookElement.querySelector('.done-icon').classList.add((updatedBook.isRead) ? 'done-read' : '');
+
+}
+
+function dbBookUpdate(user, originalBook, updatedBook, index) {
+
+    const userRef = db.collection('users').doc(getUserId());
+    const bookRef = userRef.collection('books').doc(getBookId(originalBook));
+
+    return bookRef.delete()
+        .then(saveBook(user, updatedBook, index))      // delete and add the new book
+        .catch(error => console.error("Error: book document update failed", error));
+}
+
 function createBookElement({ title, author, pages, isRead }, index) {
     const book = document.createElement('div');
     book.classList.add('book')
@@ -219,7 +258,6 @@ function createBookElement({ title, author, pages, isRead }, index) {
     bookInfoContainer.appendChild(btnContainer);
     
     book.appendChild(bookInfoContainer);
-    console.log(book);
     addBookElementEvents(book);
 
     return book;
@@ -251,6 +289,7 @@ function toggleUpdateForm(event) {
         updateBookForm.elements[1].value = book.author 
         updateBookForm.elements[2].value = book.pages;
         updateBookForm.elements[3].checked = book.isRead;;
+        updateBookForm.dataset['index'] = this.dataset['index']     // save current index
     }
 }
 
@@ -304,12 +343,12 @@ function deleteBookFromDb(book, index) {
 
     return userRef.collection('books').doc(getBookId(book)).delete()
         .then(() => {
-            dbUpdateIndexAfter(index)
+            dbUpdateIndexesAfterDelete(index)
         })
         .catch(error => console.error("Error: cannot delete book", error));
 }
 
-function dbUpdateIndexAfter(targetIndex) {
+function dbUpdateIndexesAfterDelete(targetIndex) {
     const userRef = db.collection('users').doc(getUserId());
 
     return userRef.collection('books').where('index', '>=', targetIndex)

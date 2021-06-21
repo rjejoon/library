@@ -44,8 +44,6 @@ window.addEventListener('DOMContentLoaded', e => {
     signOutBtn.addEventListener('click', signOut);
 });
 
-
-
 function initFirebaseAuth() {
     firebase.auth().onAuthStateChanged(authStateObserver);
 }
@@ -133,9 +131,9 @@ function getBookId(book) {
 
 function saveUser(user) {
     return firebase.firestore().collection('users').doc(getUserId()).set({
-            username: user.displayName,
-            email: user.email,
-            profileUrl: user.photoURL
+        username: user.displayName,
+        email: user.email,
+        profileUrl: user.photoURL
     }).catch(error => console.error("Unable to save user", error));
 }
 
@@ -152,7 +150,7 @@ function Book(title='', author='', pages='', isRead=false) {
     // constructor
     this.title = title;
     this.author = author;
-    this.pages = pages;
+    this.pages = parseInt(pages);
     this.isRead = isRead;
 }
 
@@ -200,19 +198,19 @@ function updateBook(event) {
     const updatedBook = new Book(title, author, pages, isRead);
 
     updateBookElement(targetBookElement, updatedBook);
+    updateBookFormBg.classList.remove('update-book-background-visible');  // hide update book form
 
     dbBookUpdate(firebase.auth().currentUser, originalBook, updatedBook, index);
-
-    updateBookFormBg.classList.remove('update-book-background-visible');  // hide update book form
 }
 
 function updateBookElement(targetBookElement, updatedBook) {
 
-    updateBookElement(originalBook, index, updatedBook);
     targetBookElement.querySelector('.title').textContent = updatedBook.title;
     targetBookElement.querySelector('.author').textContent = updatedBook.author;
     targetBookElement.querySelector('.pages').textContent = `${updatedBook.pages} pages`;
-    targetBookElement.querySelector('.done-icon').classList.add((updatedBook.isRead) ? 'done-read' : '');
+    if (updatedBook.isRead) {
+        targetBookElement.querySelector('.done-icon').classList.add('done-read');
+    }
 
 }
 

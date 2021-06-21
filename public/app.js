@@ -115,7 +115,7 @@ function retrieveBooksFromDb() {
         });
 }
 
-function saveBook(user, book, index) {
+function dbSaveBook(user, book, index) {
     saveUser(user);
 
     const uid = getUserId();
@@ -178,7 +178,7 @@ function addBookToLibraryGrid(event) {
 
     const bookEle = createBookElement(book, index);
     libraryGrid.insertBefore(bookEle, addBookEle);
-    saveBook(firebase.auth().currentUser, book, index);
+    dbSaveBook(firebase.auth().currentUser, book, index);
 
     addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form
 }
@@ -222,7 +222,7 @@ function dbBookUpdate(user, originalBook, updatedBook, index) {
     const bookRef = userRef.collection('books').doc(getBookId(originalBook));
 
     return bookRef.delete()
-        .then(saveBook(user, updatedBook, index))      // delete and add the new book
+        .then(dbSaveBook(user, updatedBook, index))      // delete and add the new book
         .catch(error => console.error("Error: book document update failed", error));
 }
 
@@ -294,7 +294,18 @@ function toggleUpdateForm(event) {
 }
 
 function isReadClickHandler(e) {
-    this.classList.toggle('done-read');
+    const thisBook = createBookFromBookElement(this.closest('.book'));
+    const newIsRead = this.classList.toggle('done-read');
+    dbToggleIsRead(firebase.auth.currentUser, thisBook, newIsRead);
+}
+
+function dbToggleIsRead(user, book, newIsRead) {
+
+    const userRef = db.collection('users').doc(getUserId());
+
+    return userRef.collection('books').doc(getBookId(book)).update({
+        isRead: newIsRead
+    }).catch(error => console.error("Error: update isRead failed", error));
 }
 
 function addBookEnterHandler(e) {

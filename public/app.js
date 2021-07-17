@@ -1,16 +1,116 @@
+import Book from './modules/Book.js';
+
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
-    authDomain: "library-eb55f.firebaseapp.com",
-    projectId: "library-eb55f",
-    storageBucket: "library-eb55f.appspot.com",
-    messagingSenderId: "404425878326",
-    appId: "1:404425878326:web:c1e602083c874dd0932197",
-    measurementId: "G-NBXHT6KEH0"
+  apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
+  authDomain: "library-eb55f.firebaseapp.com",
+  projectId: "library-eb55f",
+  storageBucket: "library-eb55f.appspot.com",
+  messagingSenderId: "404425878326",
+  appId: "1:404425878326:web:c1e602083c874dd0932197",
+  measurementId: "G-NBXHT6KEH0"
 };
 
 firebase.initializeApp(firebaseConfig);
 initFirebaseAuth();
+
+// TODO separate User module. Must init firebase before importing though
+// User module
+const User = (function() {
+  'use strict';
+
+  const db = firebase.firestore();
+  const libraryGrid = document.querySelector('.library-grid');
+  const addBookEle = document.querySelector('.add-book');
+
+  const addBookForm = document.querySelector('.add-book-form');
+  const addBookFormBg = document.querySelector('.add-book-background');
+
+  const updateBookForm = document.querySelector('.update-book-form');
+  const updateBookFormBg = document.querySelector('.update-book-background');
+
+  const signInBtn = document.querySelector('.sign-in-btn');
+  const signedInUserContainer = document.querySelector('.signed-in-user-container');
+  const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
+  const profileEle = signedInUserContainer.querySelector('.profile-img');
+
+  function getCurrUser() {
+    return firebase.auth().currentUser;
+  }
+
+  function getProfilePicUrl() {
+    return getCurrUser().photoURL ?? '/images/profile_placeholder.jpeg';
+  }
+
+  function getUserName() {
+    return getCurrUser().displayName;
+  }
+
+  function getUserId() {
+    return getCurrUser().uid;
+  }
+
+  function signIn() {
+    let provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+  }
+
+  function signOut() {
+    firebase.auth().signOut();
+  }
+
+  function authStateObserver(user) {
+    if (user) {
+      const profileUrl = getProfilePicUrl();
+      const userName = getUserName();
+
+      profileEle.style.backgroundImage = `url(${profileUrl})`;
+
+      signInBtn.setAttribute('hidden', 'true');   // hide signin btn
+
+      // show signed in user info
+      signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
+      profileEle.removeAttribute('hidden');
+
+      retrieveBooksFromDb();
+    }
+    else {
+      // hide signed in user info
+      signedInUserContainer.querySelector('.sign-out-btn').setAttribute('hidden', 'true');
+      profileEle.setAttribute('hidden', 'true');
+
+      // show signin button
+      signInBtn.removeAttribute('hidden');
+
+      clearLibrary();
+    }
+  } 
+
+  function retrieveBooksFromDb() {
+    return db.collection('users').doc(getUserId())
+      .collection('books').where('uid', '==', getUserId()).orderBy('index')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach(doc => {
+          const bookData = doc.data();
+          const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
+          const bookEle = createBookElement(book, bookData.index);
+          libraryGrid.insertBefore(bookEle, addBookEle);
+        });
+      })
+      .catch(error => {
+        console.error("Error getting documents: ", error);
+      });
+  }
+
+
+  return { getCurrUser, signIn, signOut, getProfilePicUrl, getUserName, getUserId };
+
+})();
+
+
+
+
 
 const db = firebase.firestore();
 
@@ -28,357 +128,346 @@ const signedInUserContainer = document.querySelector('.signed-in-user-container'
 const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
 const profileEle = signedInUserContainer.querySelector('.profile-img');
 
+
 window.addEventListener('DOMContentLoaded', e => {
 
-    addBookEle.addEventListener('mouseenter', addBookEnterHandler);
-    addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
-    addBookEle.addEventListener('click', addBookClickHandler);
+  addBookEle.addEventListener('mouseenter', addBookEnterHandler);
+  addBookEle.addEventListener('mouseleave', addBookLeaveHandler);
+  addBookEle.addEventListener('click', addBookClickHandler);
 
-    addBookForm.addEventListener('submit', addBookToLibraryGrid);
-    addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
+  addBookForm.addEventListener('submit', addBookToLibraryGrid);
+  addBookFormBg.addEventListener('click', addBookFormBgClickHandler);
 
-    updateBookForm.addEventListener('submit', updateBook);
-    updateBookFormBg.addEventListener('click', updateBookFormBgClickHandler);
+  updateBookForm.addEventListener('submit', updateBook);
+  updateBookFormBg.addEventListener('click', updateBookFormBgClickHandler);
 
-    signInBtn.addEventListener('click', signIn);
-    signOutBtn.addEventListener('click', signOut);
+  signInBtn.addEventListener('click', User.signIn);
+  signOutBtn.addEventListener('click', User.signOut);
+
 });
 
 function initFirebaseAuth() {
-    firebase.auth().onAuthStateChanged(authStateObserver);
-}
-
-function signIn() {
-    let provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider);
-}
-
-function signOut() {
-    firebase.auth().signOut();
-}
-
-function getProfilePicUrl() {
-    return firebase.auth().currentUser.photoURL ?? '/images/profile_placeholder.jpeg';
-}
-
-function getUserName() {
-    return firebase.auth().currentUser.displayName;
-}
-
-function getUserId() {
-    return firebase.auth().currentUser.uid;
+  firebase.auth().onAuthStateChanged(authStateObserver);
 }
 
 function authStateObserver(user) {
-    if (user) {
-        const profileUrl = getProfilePicUrl();
-        const userName = getUserName();
+  if (user) {
+    const profileUrl = User.getProfilePicUrl();
+    const userName = User.getUserName();
 
-        profileEle.style.backgroundImage = `url(${profileUrl})`;
+    profileEle.style.backgroundImage = `url(${profileUrl})`;
 
-        signInBtn.setAttribute('hidden', 'true');   // hide signin btn
+    signInBtn.setAttribute('hidden', 'true');   // hide signin btn
 
-        // show signed in user info
-        signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
-        profileEle.removeAttribute('hidden');
+    // show signed in user info
+    signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
+    profileEle.removeAttribute('hidden');
 
-        retrieveBooksFromDb();
-    }
-    else {
-        // hide signed in user info
-        signedInUserContainer.querySelector('.sign-out-btn').setAttribute('hidden', 'true');
-        profileEle.setAttribute('hidden', 'true');
+    retrieveBooksFromDb();
+  }
+  else {
+    // hide signed in user info
+    signedInUserContainer.querySelector('.sign-out-btn').setAttribute('hidden', 'true');
+    profileEle.setAttribute('hidden', 'true');
 
-        // show signin button
-        signInBtn.removeAttribute('hidden');
+    // show signin button
+    signInBtn.removeAttribute('hidden');
 
-        clearLibrary();
-    }
+    clearLibrary();
+  }
 }
 
 function retrieveBooksFromDb() {
-    return db.collection('users').doc(getUserId())
-        .collection('books').where('uid', '==', getUserId()).orderBy('index')
-        .get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach(doc => {
-                const bookData = doc.data();
-                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
-                const bookEle = createBookElement(book, bookData.index);
-                libraryGrid.insertBefore(bookEle, addBookEle);
-            });
-        })
-        .catch(error => {
-            console.error("Error getting documents: ", error);
-        });
+  const uid = User.getUserId();
+
+  return db.collection('users').doc(uid)
+    .collection('books').where('uid', '==', uid).orderBy('index')
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach(doc => {
+        const bookData = doc.data();
+        const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
+        const bookEle = createBookElement(book, bookData.index);
+        libraryGrid.insertBefore(bookEle, addBookEle);
+      });
+    })
+    .catch(error => {
+      console.error("Error getting documents: ", error);
+    });
 }
 
+// App
 function dbSaveBook(user, book, index) {
-    saveUser(user);
+  saveUser(user);
+  const uid = User.getUserId();
+  const bookId = book.getBookId();   
 
-    const uid = getUserId();
-    const bookId = getBookId(book);   
-    return db.collection('users').doc(uid).collection('books').doc(bookId).set({ 
-            ...book, 
-            index,
-            uid: getUserId(),
-        }).catch(error => console.error('Error writing new book to database', error));
+  return db.collection('users').doc(uid).collection('books').doc(bookId).set({ 
+      ...book, 
+      index,
+      uid: User.getUserId(),
+    }).catch(error => console.error('Error writing new book to database', error));
 }
 
-function getBookId(book) {
-    return book.title + book.author;
-}
-
+// User
 function saveUser(user) {
-    return firebase.firestore().collection('users').doc(getUserId()).set({
-        username: user.displayName,
-        email: user.email,
-        profileUrl: user.photoURL
-    }).catch(error => console.error("Unable to save user", error));
+  return firebase.firestore().collection('users').doc(User.getUserId()).set({
+    username: user.displayName,
+    email: user.email,
+    profileUrl: user.photoURL
+  }).catch(error => console.error("Unable to save user", error));
 }
 
+
+// App
 function clearLibrary() {
-    const books = libraryGrid.querySelectorAll('.book');
+  const books = libraryGrid.querySelectorAll('.book');
 
-    // remove all books except for add book
-    for (let i=0; i<books.length-1; i++) {
-        libraryGrid.removeChild(libraryGrid.firstElementChild);
-    }
+  // remove all books except for add book
+  for (let i=0; i<books.length-1; i++) {
+    libraryGrid.removeChild(libraryGrid.firstElementChild);
+  }
 }
 
-function Book(title='', author='', pages='', isRead=false) {
-    // constructor
-    this.title = title;
-    this.author = author;
-    this.pages = parseInt(pages);
-    this.isRead = isRead;
-}
-
-function createBookFromBookElement(bookElement) {
-
-    const title = bookElement.querySelector('.title').textContent;
-    const author = bookElement.querySelector('.author').textContent;
-    const pages = bookElement.querySelector('.pages').textContent.split(' ')[0];
-    const isRead = bookElement.querySelector('.done-icon').classList.contains('done-read');
-
-    return new Book(title, author, pages, isRead);
-}
-
+// App
 function addBookToLibraryGrid(event) {
-    event.preventDefault();
-    const title = this.elements[0].value;
-    const author = this.elements[1].value;
-    const pages = this.elements[2].value;
-    const isRead = this.elements[3].checked;
-    const index = getFirstFreeBookIndex();
 
-    const book = new Book(title, author, pages, isRead);
+  event.preventDefault();       // event: submit
 
-    const bookEle = createBookElement(book, index);
-    libraryGrid.insertBefore(bookEle, addBookEle);
-    dbSaveBook(firebase.auth().currentUser, book, index);
+  const title = this.elements[0].value;
+  const author = this.elements[1].value;
+  const pages = this.elements[2].value;
+  const isRead = this.elements[3].checked;
+  const index = getFirstFreeBookIndex();
 
-    addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form
+  const book = new Book(title, author, pages, isRead);
+
+  const bookEle = createBookElement(book, index);
+  libraryGrid.insertBefore(bookEle, addBookEle);
+  dbSaveBook(User.getCurrUser(), book, index);
+
+  addBookFormBg.classList.remove('add-book-background-visible');  // hide add book form
 }
 
+// App
 function getFirstFreeBookIndex() {
-    return libraryGrid.querySelectorAll('.book').length - 1;     // exclude add book element
+  return libraryGrid.querySelectorAll('.book').length - 1;     // exclude add book element
 }
 
+// App
 function updateBook(event) {
-    event.preventDefault();
-    const title = this.elements[0].value;
-    const author = this.elements[1].value;
-    const pages = this.elements[2].value;
-    const isRead = this.elements[3].checked;
-    const index = this.dataset['index'];
 
-    const targetBookElement = libraryGrid.querySelector(`.book[data-index="${index}"]`)
-    const originalBook = createBookFromBookElement(targetBookElement);
-    const updatedBook = new Book(title, author, pages, isRead);
+  event.preventDefault();
 
-    updateBookElement(targetBookElement, updatedBook);
-    updateBookFormBg.classList.remove('update-book-background-visible');  // hide update book form
+  const title = this.elements[0].value;
+  const author = this.elements[1].value;
+  const pages = this.elements[2].value;
+  const isRead = this.elements[3].checked;
+  const index = this.dataset['index'];
 
-    dbBookUpdate(firebase.auth().currentUser, originalBook, updatedBook, index);
+  const targetBookElement = libraryGrid.querySelector(`.book[data-index="${index}"]`)
+  const originalBook = Book.createBookFromBookElement(targetBookElement);
+  const updatedBook = new Book(title, author, pages, isRead);
+
+  updateBookElement(targetBookElement, updatedBook);
+  updateBookFormBg.classList.remove('update-book-background-visible');  // hide update book form
+
+  dbBookUpdate(User.getCurrUser(), originalBook, updatedBook, index);
 }
 
+
+// App, maybe BookElement
 function updateBookElement(targetBookElement, updatedBook) {
 
-    targetBookElement.querySelector('.title').textContent = updatedBook.title;
-    targetBookElement.querySelector('.author').textContent = updatedBook.author;
-    targetBookElement.querySelector('.pages').textContent = `${updatedBook.pages} pages`;
-    if (updatedBook.isRead) {
-        targetBookElement.querySelector('.done-icon').classList.add('done-read');
-    }
-
+  targetBookElement.querySelector('.title').textContent = updatedBook.title;
+  targetBookElement.querySelector('.author').textContent = updatedBook.author;
+  targetBookElement.querySelector('.pages').textContent = `${updatedBook.pages} pages`;
+  if (updatedBook.isRead) {
+    targetBookElement.querySelector('.done-icon').classList.add('done-read');
+  }
 }
 
+// App
 function dbBookUpdate(user, originalBook, updatedBook, index) {
 
-    const userRef = db.collection('users').doc(getUserId());
-    const bookRef = userRef.collection('books').doc(getBookId(originalBook));
+  const userRef = db.collection('users').doc(User.getUserId());
+  const bookRef = userRef.collection('books').doc(originalBook.getBookId());
 
-    return bookRef.delete()
-        .then(dbSaveBook(user, updatedBook, index))      // delete and add the new book
-        .catch(error => console.error("Error: book document update failed", error));
+  return bookRef.delete()
+    .then(dbSaveBook(user, updatedBook, index))      // delete then add the new book
+    .catch(error => console.error("Error: book document update failed", error));
 }
 
+// BookElement
 function createBookElement({ title, author, pages, isRead }, index) {
-    const book = document.createElement('div');
-    book.classList.add('book')
-    book.dataset['index'] = index;
+  const bookEle = document.createElement('div');
+  bookEle.classList.add('book')
+  bookEle.dataset['index'] = index;
 
-    const bookInfoContainer = document.createElement('div');
-    bookInfoContainer.classList.add('book-info-container');
+  const bookInfoContainer = document.createElement('div');
+  bookInfoContainer.classList.add('book-info-container');
 
-    const titleEle = document.createElement('span');
-    titleEle.classList.add('title');
-    titleEle.textContent = title;
+  const titleEle = document.createElement('span');
+  titleEle.classList.add('title');
+  titleEle.textContent = title;
 
-    const authorEle = document.createElement('span');
-    authorEle.classList.add('author');
-    authorEle.textContent = author;
+  const authorEle = document.createElement('span');
+  authorEle.classList.add('author');
+  authorEle.textContent = author;
 
-    const pagesEle = document.createElement('span');
-    pagesEle.classList.add('pages');
-    pagesEle.textContent = `${pages} pages`;
+  const pagesEle = document.createElement('span');
+  pagesEle.classList.add('pages');
+  pagesEle.textContent = `${pages} pages`;
 
-    const btnContainer = document.createElement('div');
-    btnContainer.classList.add('button-container');
-    btnContainer.innerHTML = `
-        <span class="material-icons done-icon ${isRead ? "done-read" : ""}">done</span>
-        <span class="material-icons del-book-icon">delete_outline</span>`;
+  const btnContainer = document.createElement('div');
+  btnContainer.classList.add('button-container');
+  btnContainer.innerHTML = `
+      <span class="material-icons done-icon ${isRead ? "done-read" : ""}">done</span>
+      <span class="material-icons del-book-icon">delete_outline</span>`;
 
-    bookInfoContainer.appendChild(titleEle);
-    bookInfoContainer.appendChild(authorEle);
-    bookInfoContainer.appendChild(pagesEle);
-    bookInfoContainer.appendChild(btnContainer);
-    
-    book.appendChild(bookInfoContainer);
-    addBookElementEvents(book);
+  bookInfoContainer.appendChild(titleEle);
+  bookInfoContainer.appendChild(authorEle);
+  bookInfoContainer.appendChild(pagesEle);
+  bookInfoContainer.appendChild(btnContainer);
+  
+  bookEle.appendChild(bookInfoContainer);
+  addBookElementEvents(bookEle);
 
-    return book;
+  return bookEle;
 }
 
-function addBookElementEvents(book) {
-    book.addEventListener('mouseenter', bookEnterHandler);
-    book.addEventListener('mouseleave', bookLeaveHandler);
-    book.addEventListener('click', toggleUpdateForm);
-    book.querySelector('.done-icon').addEventListener('click', isReadClickHandler); 
-    book.querySelector('.del-book-icon').addEventListener('click', deleteBook);
+// BookElement
+function addBookElementEvents(bookEle) {
+  bookEle.addEventListener('mouseenter', bookEnterHandler);
+  bookEle.addEventListener('mouseleave', bookLeaveHandler);
+  bookEle.addEventListener('click', toggleUpdateForm);
+  bookEle.querySelector('.done-icon').addEventListener('click', isReadClickHandler); 
+  bookEle.querySelector('.del-book-icon').addEventListener('click', deleteBook);
 }
 
-function bookEnterHandler(e) {
-    this.querySelector('.button-container').classList.add('visible');
+// BookElement
+function bookEnterHandler(event) {
+  this.querySelector('.button-container').classList.add('visible');
 }
 
-function bookLeaveHandler(e) {
-    this.querySelector('.button-container').classList.remove('visible');
+// BookElement
+function bookLeaveHandler(event) {
+  this.querySelector('.button-container').classList.remove('visible');
 }
 
+// BookElement 
 function toggleUpdateForm(event) {
 
-    if (!event.target.classList.contains('material-icons')) {       // toggle form when clicked anywhere other than buttons
-        updateBookFormBg.classList.add('update-book-background-visible');
+  if (!event.target.classList.contains('material-icons')) {       // toggle form when clicked anywhere other than buttons
+    updateBookFormBg.classList.add('update-book-background-visible');
 
-        const book = createBookFromBookElement(this);
-        updateBookForm.elements[0].value = book.title;
-        updateBookForm.elements[1].value = book.author 
-        updateBookForm.elements[2].value = book.pages;
-        updateBookForm.elements[3].checked = book.isRead;;
-        updateBookForm.dataset['index'] = this.dataset['index']     // save current index
-    }
+    const book = Book.createBookFromBookElement(this);
+    updateBookForm.elements[0].value = book.title;
+    updateBookForm.elements[1].value = book.author 
+    updateBookForm.elements[2].value = book.pages;
+    updateBookForm.elements[3].checked = book.isRead;;
+    updateBookForm.dataset['index'] = this.dataset['index']     // save current index
+  }
 }
 
-function isReadClickHandler(e) {
-    const thisBook = createBookFromBookElement(this.closest('.book'));
-    const newIsRead = this.classList.toggle('done-read');
-    dbToggleIsRead(firebase.auth.currentUser, thisBook, newIsRead);
+function isReadClickHandler(event) {
+  const thisBook = Book.createBookFromBookElement(this.closest('.book'));
+  const newIsRead = this.classList.toggle('done-read');
+  dbToggleIsRead(User.getCurrUser(), thisBook, newIsRead);
 }
 
 function dbToggleIsRead(user, book, newIsRead) {
 
-    const userRef = db.collection('users').doc(getUserId());
+  const userRef = db.collection('users').doc(User.getUserId());
 
-    return userRef.collection('books').doc(getBookId(book)).update({
-        isRead: newIsRead
-    }).catch(error => console.error("Error: update isRead failed", error));
+  return userRef.collection('books').doc(book.getBookId()).update({
+    isRead: newIsRead
+  }).catch(error => console.error("Error: update isRead failed", error));
 }
 
-function addBookEnterHandler(e) {
-    this.querySelector('.material-icons').classList.add('rotate-icon');
+// BookElement 
+function addBookEnterHandler(event) {
+  this.querySelector('.material-icons').classList.add('rotate-icon');
 }
 
-function addBookLeaveHandler(e) {
-    this.querySelector('.material-icons').classList.remove('rotate-icon');
+// BookElement 
+function addBookLeaveHandler(event) {
+  this.querySelector('.material-icons').classList.remove('rotate-icon');
 }
 
-function addBookClickHandler(e) {
-    addBookFormBg.classList.add('add-book-background-visible');
-    resetAddBookForm();
+// BookElement 
+function addBookClickHandler(event) {
+  addBookFormBg.classList.add('add-book-background-visible');
+  resetAddBookForm();
 }
 
-function addBookFormBgClickHandler(e) {
-    if (e.target === this) {
-        addBookFormBg.classList.remove('add-book-background-visible');
-    }
+// BookElement
+function addBookFormBgClickHandler(event) {
+  if (event.target === this) {
+    addBookFormBg.classList.remove('add-book-background-visible');
+  }
 }
 
-function updateBookFormBgClickHandler(e) {
-    if (e.target === this) {
-        updateBookFormBg.classList.remove('update-book-background-visible');
-    }
+// BookElement 
+function updateBookFormBgClickHandler(event) {
+  if (event.target === this) {
+    updateBookFormBg.classList.remove('update-book-background-visible');
+  }
 }
 
+// App
 function deleteBook(event) {
-    const thisBookElement = this.parentElement.parentElement.parentElement;
-    const book = createBookFromBookElement(thisBookElement);
-    const index = parseInt(thisBookElement.dataset['index']);
+  const thisBookElement = this.parentElement.parentElement.parentElement;
+  const book = Book.createBookFromBookElement(thisBookElement);
+  const index = parseInt(thisBookElement.dataset['index']);
 
-    thisBookElement.parentNode.removeChild(thisBookElement)       // delete this book element
+  thisBookElement.parentNode.removeChild(thisBookElement)       // delete this book element
 
-    const books = document.querySelectorAll('.book');
+  const books = document.querySelectorAll('.book');
 
-    for (let i=index; i<books.length-1; i++) {      
-        books[i].dataset['index']--;    // update indexes after this book
-    }
+  for (let i=index; i<books.length-1; i++) {      
+    books[i].dataset['index']--;    // update indexes after this book
+  }
 
-    deleteBookFromDb(book, index);
+  deleteBookFromDb(User.getCurrUser(), book, index);
 }
 
-function deleteBookFromDb(book, index) {
-    const userRef = db.collection('users').doc(getUserId());
+// App
+function deleteBookFromDb(user, book, index) {
+  const userRef = db.collection('users').doc(User.getUserId());
 
-    return userRef.collection('books').doc(getBookId(book)).delete()
-        .then(() => {
-            dbUpdateIndexesAfterDelete(index)
-        })
-        .catch(error => console.error("Error: cannot delete book", error));
+  return userRef.collection('books').doc(book.getBookId()).delete()
+    .then(() => {
+      dbUpdateIndexesAfterDelete(user, index)
+    })
+    .catch(error => console.error("Error: cannot delete book", error));
 }
 
-function dbUpdateIndexesAfterDelete(targetIndex) {
-    const userRef = db.collection('users').doc(getUserId());
+// App
+function dbUpdateIndexesAfterDelete(user, targetIndex) {
+  const userRef = db.collection('users').doc(User.getUserId());
 
-    return userRef.collection('books').where('index', '>=', targetIndex)
-        .get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach(doc => {
-                console.log(doc.data());
-                const bookData = doc.data();
-                const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
-                console.log(getBookId(book));
-                userRef.collection('books').doc(getBookId(book)).update({
-                    index: firebase.firestore.FieldValue.increment(-1)
-                });
-            });
-        }).catch(error => console.error("Error: cannot update book", error));
+  return userRef.collection('books').where('index', '>=', targetIndex)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach(doc => {
+        console.log(doc.data());
+        const bookData = doc.data();
+        const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
+        // TODO delete after 
+        console.log(book.getBookId());
+        userRef.collection('books').doc(book.getBookId()).update({
+          index: firebase.firestore.FieldValue.increment(-1)
+        });
+      });
+    }).catch(error => console.error("Error: cannot update book", error));
 }
 
+// App
 function resetAddBookForm() {
-    addBookForm.elements[0].value = '';
-    addBookForm.elements[1].value = '';
-    addBookForm.elements[2].value = '';
+  addBookForm.elements[0].value = '';
+  addBookForm.elements[1].value = '';
+  addBookForm.elements[2].value = '';
 }
 
 

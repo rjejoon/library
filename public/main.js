@@ -1,116 +1,5 @@
 import Book from './modules/Book.js';
-
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
-  authDomain: "library-eb55f.firebaseapp.com",
-  projectId: "library-eb55f",
-  storageBucket: "library-eb55f.appspot.com",
-  messagingSenderId: "404425878326",
-  appId: "1:404425878326:web:c1e602083c874dd0932197",
-  measurementId: "G-NBXHT6KEH0"
-};
-
-firebase.initializeApp(firebaseConfig);
-initFirebaseAuth();
-
-// TODO separate User module. Must init firebase before importing though
-// User module
-const User = (function() {
-  'use strict';
-
-  const db = firebase.firestore();
-  const libraryGrid = document.querySelector('.library-grid');
-  const addBookEle = document.querySelector('.add-book');
-
-  const addBookForm = document.querySelector('.add-book-form');
-  const addBookFormBg = document.querySelector('.add-book-background');
-
-  const updateBookForm = document.querySelector('.update-book-form');
-  const updateBookFormBg = document.querySelector('.update-book-background');
-
-  const signInBtn = document.querySelector('.sign-in-btn');
-  const signedInUserContainer = document.querySelector('.signed-in-user-container');
-  const signOutBtn = signedInUserContainer.querySelector('.sign-out-btn');
-  const profileEle = signedInUserContainer.querySelector('.profile-img');
-
-  function getCurrUser() {
-    return firebase.auth().currentUser;
-  }
-
-  function getProfilePicUrl() {
-    return getCurrUser().photoURL ?? '/images/profile_placeholder.jpeg';
-  }
-
-  function getUserName() {
-    return getCurrUser().displayName;
-  }
-
-  function getUserId() {
-    return getCurrUser().uid;
-  }
-
-  function signIn() {
-    let provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider);
-  }
-
-  function signOut() {
-    firebase.auth().signOut();
-  }
-
-  function authStateObserver(user) {
-    if (user) {
-      const profileUrl = getProfilePicUrl();
-      const userName = getUserName();
-
-      profileEle.style.backgroundImage = `url(${profileUrl})`;
-
-      signInBtn.setAttribute('hidden', 'true');   // hide signin btn
-
-      // show signed in user info
-      signedInUserContainer.querySelector('.sign-out-btn').removeAttribute('hidden');
-      profileEle.removeAttribute('hidden');
-
-      retrieveBooksFromDb();
-    }
-    else {
-      // hide signed in user info
-      signedInUserContainer.querySelector('.sign-out-btn').setAttribute('hidden', 'true');
-      profileEle.setAttribute('hidden', 'true');
-
-      // show signin button
-      signInBtn.removeAttribute('hidden');
-
-      clearLibrary();
-    }
-  } 
-
-  function retrieveBooksFromDb() {
-    return db.collection('users').doc(getUserId())
-      .collection('books').where('uid', '==', getUserId()).orderBy('index')
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach(doc => {
-          const bookData = doc.data();
-          const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
-          const bookEle = createBookElement(book, bookData.index);
-          libraryGrid.insertBefore(bookEle, addBookEle);
-        });
-      })
-      .catch(error => {
-        console.error("Error getting documents: ", error);
-      });
-  }
-
-
-  return { getCurrUser, signIn, signOut, getProfilePicUrl, getUserName, getUserId };
-
-})();
-
-
-
-
+import User from './modules/User.js';
 
 const db = firebase.firestore();
 
@@ -145,6 +34,9 @@ window.addEventListener('DOMContentLoaded', e => {
   signOutBtn.addEventListener('click', User.signOut);
 
 });
+
+initFirebaseAuth();
+
 
 function initFirebaseAuth() {
   firebase.auth().onAuthStateChanged(authStateObserver);

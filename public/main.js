@@ -347,11 +347,8 @@ const App = (function() {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach(doc => {
-          console.log(doc.data());
           const bookData = doc.data();
           const book = new Book(bookData.title, bookData.author, bookData.pages, bookData.isRead);
-          // TODO delete after 
-          console.log(book.getBookId());
           userRef.collection('books').doc(book.getBookId()).update({
             index: firebase.firestore.FieldValue.increment(-1)
           });

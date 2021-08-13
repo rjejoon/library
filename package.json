@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/rjejoon/library#readme",
   "dependencies": {
-    "crypto-js": "^4.0.0",
     "firebase": "^8.6.7"
   }
 }

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress --mode=production",
-    "watch": "webpack -- progress --watch",
+    "watch": "webpack --progress --watch",
     "serve": "webpack-dev-server --open"
   },
   "repository": {
@@ -25,11 +25,16 @@
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
     "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.25.2",
+    "style-loader": "^3.3.1",
     "webpack": "^5.61.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.4.0"
+  },
+  "dependencies": {
+    "html-webpack-plugin": "^5.5.0"
   }
 }

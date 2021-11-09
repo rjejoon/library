@@ -24,10 +24,15 @@ const navbar = (() => {
     return navbarElement.querySelector(`.${styles["sign-out-btn"]}`);
   }
 
+  function getProfileImageElement() {
+    return navbarElement.querySelector(`.${styles["profile-img"]}`);
+  }
+
   return {
     getNavbarElement,
     getSignInBtn,
     getSignOutBtn,
+    getProfileImageElement,
   }
 
 })();

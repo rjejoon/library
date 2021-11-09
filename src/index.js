@@ -6,7 +6,6 @@ import { getLibraryElement  } from "./components/library/library.js";
 
 import Controller from "./controller.js";
 
-const controller = new Controller();
 
 (() => {
   const body = document.querySelector("body");
@@ -17,6 +16,9 @@ const controller = new Controller();
 
   body.appendChild(navbar.getNavbarElement());
   body.appendChild(mainElement);
+
+  const controller = new Controller();
+  controller.getAuthStateObserver();    
 
   const signInBtn = navbar.getSignInBtn();
   signInBtn.addEventListener("click", e => {

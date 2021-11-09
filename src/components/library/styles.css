@@ -95,7 +95,7 @@
     visibility: hidden;
 }
 
-.material-icons {
+.add-book-icon {
     font-size: 1.8em;
     transition: transform 0.2s;
 }
@@ -105,7 +105,7 @@
     visibility: visible;
 }
 
-.material-icons:hover {
+.add-book-icon:hover {
     cursor: pointer;
     transform: scale(1.1);
 }
@@ -117,5 +117,113 @@
 .done-icon.done-read {
     color: green;
 
+}
+
+/*  form rules  */
+
+.add-book-background,
+.update-book-background,
+.book-form-background {
+    position: absolute;
+    z-index: 1;
+
+    width: 100vw;
+    height: 100vh;
+    background: rgba(196, 196, 196, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-book-background-visible,
+.update-book-background-visible,
+.book-form-background-visible {
+    display: flex;
+}
+
+.add-book-form,
+.update-book-form,
+.book-form {
+    width: 403px;
+    height: 454px;
+    background-color: #FFFBFB;
+    border: 1px solid #B2B2B2;
+    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 50px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+
+    padding: 2.5rem 2.187rem;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+}
+
+.form-items-container {
+    height: 100%;
+
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.form-items-container > input {
+    font-size: 1em;
+    margin: 0.6em 0 0.8em 0;
+
+    border: 1px solid #8f8f9d;
+}
+
+.is-read-container {
+    height: 20px;
+}
+
+.input-is-read {
+    display: inline;
+    margin: 0;
+}
+
+input[name="pages"] {
+    width: 30%;
+}
+
+.add-book-submit-container,
+.update-book-submit-container,
+.book-form-submit-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.add-book-submit-btn,
+.update-book-submit-btn, 
+.book-form-submit-btn {
+    height: 36px;
+    width: 100px;
+    background: #BAE7FF;
+    border: 1px solid #4DC1FF;
+    border-radius: 50px;
+
+    transition: filter 0.2s;
+}
+
+.add-book-submit-btn:hover,
+.update-book-submit-btn:hover,
+.book-form-submit-btn:hover {
+    cursor: pointer;
+    filter: brightness(75%);
+}
+
+.add-book-submit-btn:active,
+.update-book-submit-btn:active,
+.book-form-submit-btn:active {
+    filter: brightness(60%);
+}
+
+.form-title {
+    font-size: 1.75em;
+    color: #555555;
+    height: 20%;
 }
 

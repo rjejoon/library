@@ -52,12 +52,22 @@ const DOMManager = (() => {
     }
   }
 
+  function updateBookInLibraryGrid(index) {
+    const updatedBook = controller.getBookFromListAt(index);
+
+    library.getTitleElementOfBookAt(index).textContent = updatedBook.title;
+    library.getAuthorElementOfBookAt(index).textContent = updatedBook.author;
+    library.getPagesElementOfBookAt(index).textContent = `${updatedBook.pages} pages`;
+    library.updateIsReadOfBookAt(index, updatedBook.isRead);
+  }
+
   return {
     createApp,
     showUserInfo,
     hideUserInfo,
     addBookInLibraryGrid,
     clearLibraryGrid,
+    updateBookInLibraryGrid,
   };
 })();
 

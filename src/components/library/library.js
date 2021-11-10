@@ -30,6 +30,28 @@ const library = (() => {
     return libraryGrid.querySelector(`.${styles["add-book"]}`);
   }
 
+  function getBookElementAt(index) {
+    return libraryGrid.querySelector(`.${styles.book}[data-index="${index}"]`);
+  }
+
+  function getTitleElementOfBookAt(index) {
+    return getBookElementAt(index).querySelector(`.${styles.title}`);
+  }
+
+  function getAuthorElementOfBookAt(index) {
+    return getBookElementAt(index).querySelector(`.${styles.author}`);
+  }
+
+  function getPagesElementOfBookAt(index) {
+    return getBookElementAt(index).querySelector(`.${styles.pages}`);
+  }
+
+  function updateIsReadOfBookAt(index, isRead) {
+    if (isRead) {
+      getBookElementAt(index).querySelector(`.${styles["done-icon"]}`).classList.add(styles["done-read"]);
+    }
+  }
+
   function createBookElement({ title, author, pages, isRead }, index) {
     const bookEle = document.createElement("div");
     bookEle.classList.add(styles.book);
@@ -77,10 +99,12 @@ const library = (() => {
         const formEle = getFormElement("update");
         const form = formEle.querySelector(`.${styles["book-form"]}`);
 
-        form.elements[0].value = title;
-        form.elements[1].value = author;
-        form.elements[2].value = pages;
-        form.elements[3].checked = isRead;
+        // TODO refactor
+        const book = controller.getBookFromListAt(index);
+        form.elements[0].value = book.title;
+        form.elements[1].value = book.author;
+        form.elements[2].value = book.pages;
+        form.elements[3].checked = book.isRead;
         form.dataset["index"] = index    // save current index
 
         const body = document.querySelector("body");
@@ -140,19 +164,20 @@ const library = (() => {
 
       // TODO input validation
 
+      // get book info from form
+      const form = bookForm.querySelector(`.${styles["book-form"]}`);
+
+      const title = form.elements[0].value;
+      const author = form.elements[1].value;
+      const pages = form.elements[2].value;
+      const isRead = form.elements[3].checked;
+      const book = new Book(title, author, pages, isRead);
+
       if (action.toLowerCase() == "add") {
         // add book
 
-        // get book info from form
-        const form = bookForm.querySelector(`.${styles["book-form"]}`);
-
-        const title = form.elements[0].value;
-        const author = form.elements[1].value;
-        const pages = form.elements[2].value;
-        const isRead = form.elements[3].checked;
         const index = controller.getNumTotalBooks();
 
-        const book = new Book(title, author, pages, isRead);
         const bookEle = createBookElement(book, index);
 
         controller.addBook(book, index);
@@ -161,6 +186,10 @@ const library = (() => {
       } else {
         // update book
 
+        const index = form.dataset["index"];
+
+        controller.updateBook(book, index);
+        DOMManager.updateBookInLibraryGrid(index);
       }
 
       document.querySelector("body").removeChild(bookForm);   // remove form from the dom
@@ -173,6 +202,11 @@ const library = (() => {
   return {
     getLibraryGrid,
     getAddBookElement,
+    getBookElementAt,
+    getTitleElementOfBookAt,
+    getAuthorElementOfBookAt,
+    getPagesElementOfBookAt,
+    updateIsReadOfBookAt,
     createBookElement,
   }
 })();

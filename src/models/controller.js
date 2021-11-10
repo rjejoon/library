@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as authSignOut} from "firebase/auth";
-import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc } from "firebase/firestore";
+import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc, updateDoc } from "firebase/firestore";
 
 import DOMManager from "./dommanager.js";
 import { Book } from "./book.js";
@@ -82,6 +82,10 @@ const controller = (() => {
     return libraryList.length;
   }
 
+  function getBookFromListAt(index) {
+    return libraryList[index][1];
+  }
+
   async function retrieveBooksFromDb() {
     const booksRef = collection(db, "users", getUserId(), "books");
     const q = query(booksRef, orderBy("index"));
@@ -93,7 +97,7 @@ const controller = (() => {
       const book = new Book(data.title, data.author, data.pages, data.isRead);
       const bookEle = library.createBookElement(book, data.index);
       
-      libraryList.push(book);
+      libraryList.push([doc.id, book]);
       DOMManager.addBookInLibraryGrid(bookEle);
     });
   }
@@ -106,15 +110,37 @@ const controller = (() => {
   }
 
   async function addBook(book, index) {
-    libraryList.push(book);
 
-    const booksRef = collection(db, "users", getUserId(), "books");
-    // Add a new book document with a generated id
-    const bookRef = await addDoc(booksRef, { 
-      ...book,
-      index,
-    });
-    console.log("Book document stored in db with id: ", bookRef.id);
+    try {
+      const booksRef = collection(db, "users", getUserId(), "books");
+      // Add a new book document with a generated id
+      const bookRef = await addDoc(booksRef, { 
+        ...book,
+        index,
+      });
+      libraryList.push([bookRef.id, book]);
+      console.log("Book document stored in db with id: ", bookRef.id);
+    } catch (error) {
+      console.error("Error: adding book doc in db failed", error);
+    }
+  }
+
+  async function updateBook(updatedBook, index) {
+    const book = libraryList[index][1];
+    book.title = updatedBook.title;
+    book.author = updatedBook.author;
+    book.pages = updatedBook.pages;
+    book.isRead = updatedBook.isRead;
+
+    try {
+      const bookRef = doc(db, "users", getUserId(), "books", libraryList[index][0]);
+      await updateDoc(bookRef, { 
+        ...updatedBook
+      });
+      console.log("Updated book successfuly with id: ", bookRef.id);
+    } catch (error) {
+      console.error("Error: updating book failed", error);
+    }
   }
 
   return {
@@ -125,9 +151,11 @@ const controller = (() => {
     getUsername,
     getUserId,
     getNumTotalBooks,
+    getBookFromListAt,
     retrieveBooksFromDb,
     clearLibrary,
     addBook,
+    updateBook,
   };
 
 })();

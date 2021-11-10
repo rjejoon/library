@@ -1,42 +1,35 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { getFirestore, doc, collection, query, orderBy, getDocs } from "firebase/firestore";
 
-import navbar from "./components/navbar/navbar.js";
+import DOMManager from "./dommanager.js";
+import { Book, bookConverter } from "./models/book.js";
+import library from "./components/library/library.js";
 
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
-  authDomain: "library-eb55f.firebaseapp.com",
-  projectId: "library-eb55f",
-  storageBucket: "library-eb55f.appspot.com",
-  messagingSenderId: "404425878326",
-  appId: "1:404425878326:web:c1e602083c874dd0932197",
-  measurementId: "G-NBXHT6KEH0"
-};
+const controller = (() => {
 
-export default class Controller {
-  // TODO make singleton
+  const libraryList = [];
 
-  #app;
-  #auth;
-  #provider;
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
+    authDomain: "library-eb55f.firebaseapp.com",
+    projectId: "library-eb55f",
+    storageBucket: "library-eb55f.appspot.com",
+    messagingSenderId: "404425878326",
+    appId: "1:404425878326:web:c1e602083c874dd0932197",
+    measurementId: "G-NBXHT6KEH0"
+  };
 
-  constructor() {
-    this.#app = initializeApp(firebaseConfig);
-    this.#auth = getAuth();
-    this.#provider = new GoogleAuthProvider();
-  }
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore();
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
 
-  signIn() {
-    signInWithPopup(this.#auth, this.#provider)
+  function signIn() {
+    signInWithPopup(auth, provider)
       .then(result => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        console.log(user);
-
+        console.log("Sign in successful");
       }).catch(error => {
         const errorCode = error.code;
         const errorMessage = error.message;
@@ -45,8 +38,8 @@ export default class Controller {
       });
   }
 
-  signOut() {
-    signOut(this.#auth)
+  function signOut() {
+    signOut(auth)
       .then(() => {
         console.log("Sign out successful");
       }).catch(error => {
@@ -54,48 +47,65 @@ export default class Controller {
       })
   }
 
-  getAuthStateObserver() {
-    return onAuthStateChanged(this.#auth, user => {
+  async function getAuthStateObserver() {
+    return onAuthStateChanged(auth, user => {
       if (user) {
-        // TODO refactor: controller should not access elements directly
-
         // user signed in
-        navbar.getSignInBtn().setAttribute("hidden", "true");   // hide sign in button
+        DOMManager.showUserInfo(getProfilePicUrl());
 
-        // show signed in user info
-        navbar.getSignOutBtn().removeAttribute("hidden");   
-        navbar.getProfileImageElement().removeAttribute("hidden");
-
-        navbar.getProfileImageElement().style.backgroundImage = `url(${this.getProfilePicUrl()})`;
-
-        // this.retrieveBooksFromDb();
+        retrieveBooksFromDb();
 
       } else {
         // user not signed in
-        navbar.getSignOutBtn().setAttribute("hidden", "true");   // hide sign out button
-        navbar.getProfileImageElement().setAttribute("hidden", "true");
-
-        navbar.getSignInBtn().removeAttribute("hidden")   // show sign in button
+        DOMManager.hideUserInfo();
 
         // this.clearLibrary();
       }
     });
   }
 
-  getProfilePicUrl() {
+  function getProfilePicUrl() {
     // TODO add default profile picture
-    return this.#auth.currentUser.photoURL;
+    return auth.currentUser.photoURL;
   }
 
-  getUsername() {
-    return this.#auth.currentUser.displayName;
+  function getUsername() {
+    return auth.currentUser.displayName;
   }
 
-  retrieveBooksFromDb() {
+  function getUserId() {
+    return auth.currentUser.uid;
+  }
+
+  async function retrieveBooksFromDb() {
+    const booksRef = collection(db, "users", getUserId(), "books").withConverter(bookConverter);
+    const q = query(booksRef, orderBy("index"));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc, index) => {
+      const book = doc.data();
+      const bookEle = library.createBookElement(book, index);
+      
+      libraryList.push(book);
+      DOMManager.addBookInLibraryGrid(bookEle);
+    });
+  }
+
+  async function clearLibrary() {
 
   }
 
-  clearLibrary() {
+  return {
+    signIn,
+    signOut,
+    getAuthStateObserver,
+    getProfilePicUrl,
+    getUsername,
+    getUserId,
+    retrieveBooksFromDb,
+    clearLibrary,
+  };
 
-  }
-}
+})();
+
+export default controller;

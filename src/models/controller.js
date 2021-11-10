@@ -59,7 +59,7 @@ const controller = (() => {
         // user not signed in
         DOMManager.hideUserInfo();
 
-        // this.clearLibrary();
+        clearLibrary();
       }
     });
   }
@@ -78,21 +78,26 @@ const controller = (() => {
   }
 
   async function retrieveBooksFromDb() {
-    const booksRef = collection(db, "users", getUserId(), "books").withConverter(bookConverter);
+    const booksRef = collection(db, "users", getUserId(), "books");
     const q = query(booksRef, orderBy("index"));
     const querySnapshot = await getDocs(q);
 
-    querySnapshot.forEach((doc, index) => {
-      const book = doc.data();
-      const bookEle = library.createBookElement(book, index);
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+
+      const book = new Book(data.title, data.author, data.pages, data.isRead);
+      const bookEle = library.createBookElement(book, data.index);
       
       libraryList.push(book);
       DOMManager.addBookInLibraryGrid(bookEle);
     });
   }
 
-  async function clearLibrary() {
+  function clearLibrary() {
+    const numBooks = libraryList.length;
+    libraryList.length = 0;   // clear list
 
+    DOMManager.clearLibraryGrid(numBooks);
   }
 
   return {

@@ -44,12 +44,20 @@ const DOMManager = (() => {
 
   }
 
+  function clearLibraryGrid(numBooks) {
+    const libraryGrid = library.getLibraryGrid();
+    
+    for (let i=0; i<numBooks; i++) {
+      libraryGrid.removeChild(libraryGrid.firstElementChild);
+    }
+  }
 
   return {
     createApp,
     showUserInfo,
     hideUserInfo,
     addBookInLibraryGrid,
+    clearLibraryGrid,
   };
 })();
 

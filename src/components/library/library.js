@@ -49,7 +49,7 @@ const library = (() => {
     const btnContainer = document.createElement("div");
     btnContainer.classList.add(styles["button-container"]);
     btnContainer.innerHTML = `
-        <span class="material-icons ${styles["done-icon"]} ${isRead ? "done-read" : ""}">done</span>
+        <span class="material-icons ${styles["done-icon"]} ${isRead ? styles["done-read"] : ""}">done</span>
         <span class="material-icons ${styles["del-book-icon"]}">delete_outline</span>`;
       
     bookInfoContainer.appendChild(titleEle);
@@ -61,22 +61,26 @@ const library = (() => {
 
     // add event listeners
     bookEle.addEventListener("mouseenter", e => {
-      this.querySelector(`.${styles["button-container"]}`).classList.add(styles.visible);
+      bookEle.querySelector(`.${styles["button-container"]}`).classList.add(styles.visible);
     });
     bookEle.addEventListener("mouseleave", e => {
-      this.querySelector(`.${styles["button-container"]}`).classList.remove(styles.visible);
+      bookEle.querySelector(`.${styles["button-container"]}`).classList.remove(styles.visible);
     });
     bookEle.addEventListener("click", e => {
       // create update form element
       if (!e.target.classList.contains("material-icons")) {
         // create form when on clicked anywhere other than buttons
         const formEle = getFormElement("update");
+        const form = formEle.querySelector(`.${styles["book-form"]}`);
 
-        formEle.elements[0].value = title;
-        formEle.elements[1].value = author;
-        formEle.elements[2].value = pages;
-        formEle.elements[3].checked = isRead;
-        formEle.dataset["index"] = index    // save current index
+        form.elements[0].value = title;
+        form.elements[1].value = author;
+        form.elements[2].value = pages;
+        form.elements[3].checked = isRead;
+        form.dataset["index"] = index    // save current index
+
+        const body = document.querySelector("body");
+        body.appendChild(formEle);
       }
     });
     bookEle.querySelector(`.${styles["done-icon"]}`).addEventListener("click", e => {
@@ -119,10 +123,12 @@ const library = (() => {
         </div>
       </form>`;
 
-    // remove itself if the background is clicked
     bookForm.addEventListener("click", e => {
-      const body = document.querySelector("body");
-      body.removeChild(bookForm);
+      // remove form only if the background is clicked
+      if (e.target.classList.contains(styles["book-form-background"])) {
+        const body = document.querySelector("body");
+        body.removeChild(bookForm);
+      }
     });
 
     return bookForm;

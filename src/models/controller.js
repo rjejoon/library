@@ -1,9 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as authSignOut} from "firebase/auth";
-import { getFirestore, doc, collection, query, orderBy, getDocs } from "firebase/firestore";
+import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc } from "firebase/firestore";
 
 import DOMManager from "./dommanager.js";
-import { Book, bookConverter } from "./book.js";
+import { Book } from "./book.js";
 import library from "../components/library/library.js";
 
 
@@ -78,6 +78,10 @@ const controller = (() => {
     return auth.currentUser.uid;
   }
 
+  function getNumTotalBooks() {
+    return libraryList.length;
+  }
+
   async function retrieveBooksFromDb() {
     const booksRef = collection(db, "users", getUserId(), "books");
     const q = query(booksRef, orderBy("index"));
@@ -101,6 +105,18 @@ const controller = (() => {
     DOMManager.clearLibraryGrid(numBooks);
   }
 
+  async function addBook(book, index) {
+    libraryList.push(book);
+
+    const booksRef = collection(db, "users", getUserId(), "books");
+    // Add a new book document with a generated id
+    const bookRef = await addDoc(booksRef, { 
+      ...book,
+      index,
+    });
+    console.log("Book document stored in db with id: ", bookRef.id);
+  }
+
   return {
     signIn,
     signOut,
@@ -108,8 +124,10 @@ const controller = (() => {
     getProfilePicUrl,
     getUsername,
     getUserId,
+    getNumTotalBooks,
     retrieveBooksFromDb,
     clearLibrary,
+    addBook,
   };
 
 })();

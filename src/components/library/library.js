@@ -1,5 +1,9 @@
 import styles from "./styles.css";
 
+import controller from "../../models/controller";
+import { Book } from "../../models/book";
+import DOMManager from "../../models/dommanager";
+
 const library = (() => {
 
   const libraryGrid = document.createElement("div");
@@ -129,6 +133,38 @@ const library = (() => {
         const body = document.querySelector("body");
         body.removeChild(bookForm);
       }
+    });
+
+    bookForm.querySelector(`.${styles["book-form-submit-btn"]}`).addEventListener("click", e => {
+      e.preventDefault();
+
+      // TODO input validation
+
+      if (action.toLowerCase() == "add") {
+        // add book
+
+        // get book info from form
+        const form = bookForm.querySelector(`.${styles["book-form"]}`);
+
+        const title = form.elements[0].value;
+        const author = form.elements[1].value;
+        const pages = form.elements[2].value;
+        const isRead = form.elements[3].checked;
+        const index = controller.getNumTotalBooks();
+
+        const book = new Book(title, author, pages, isRead);
+        const bookEle = createBookElement(book, index);
+
+        controller.addBook(book, index);
+        DOMManager.addBookInLibraryGrid(bookEle);
+
+      } else {
+        // update book
+
+      }
+
+      document.querySelector("body").removeChild(bookForm);   // remove form from the dom
+
     });
 
     return bookForm;

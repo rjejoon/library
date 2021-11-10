@@ -51,6 +51,7 @@ const controller = (() => {
     return onAuthStateChanged(auth, user => {
       if (user) {
         // user signed in
+        clearLibrary();
         DOMManager.showUserInfo(getProfilePicUrl());
 
         retrieveBooksFromDb();

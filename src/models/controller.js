@@ -1,10 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as authSignOut} from "firebase/auth";
 import { getFirestore, doc, collection, query, orderBy, getDocs } from "firebase/firestore";
 
 import DOMManager from "./dommanager.js";
-import { Book, bookConverter } from "./models/book.js";
-import library from "./components/library/library.js";
+import { Book, bookConverter } from "./book.js";
+import library from "../components/library/library.js";
 
 
 const controller = (() => {
@@ -39,7 +39,7 @@ const controller = (() => {
   }
 
   function signOut() {
-    signOut(auth)
+    authSignOut(auth)
       .then(() => {
         console.log("Sign out successful");
       }).catch(error => {

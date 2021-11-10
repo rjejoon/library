@@ -1,9 +1,26 @@
-import library from "./components/library/library.js";
-import navbar from "./components/navbar/navbar.js";
+import library from "../components/library/library.js";
+import navbar from "../components/navbar/navbar.js";
+import controller from "./controller.js";
 
 const DOMManager = (() => {
 
   const body = document.querySelector("body");
+
+  function createApp() {
+    const mainElement = document.createElement("main");
+    const libraryGrid = library.getLibraryGrid();
+    mainElement.appendChild(libraryGrid);
+
+    body.appendChild(navbar.getNavbarElement());
+    body.appendChild(mainElement);
+
+    navbar.getSignInBtn().addEventListener("click", e => {
+      controller.signIn();
+    });
+    navbar.getSignOutBtn().addEventListener("click", e => {
+      controller.signOut();
+    });
+  }
 
   function showUserInfo(profilePicURL) {
 
@@ -29,6 +46,7 @@ const DOMManager = (() => {
 
 
   return {
+    createApp,
     showUserInfo,
     hideUserInfo,
     addBookInLibraryGrid,

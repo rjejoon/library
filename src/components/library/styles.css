@@ -121,8 +121,6 @@
 
 /*  form rules  */
 
-.add-book-background,
-.update-book-background,
 .book-form-background {
     position: absolute;
     z-index: 1;
@@ -136,14 +134,6 @@
     align-items: center;
 }
 
-.add-book-background-visible,
-.update-book-background-visible,
-.book-form-background-visible {
-    display: flex;
-}
-
-.add-book-form,
-.update-book-form,
 .book-form {
     width: 403px;
     height: 454px;
@@ -188,16 +178,12 @@ input[name="pages"] {
     width: 30%;
 }
 
-.add-book-submit-container,
-.update-book-submit-container,
 .book-form-submit-container {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.add-book-submit-btn,
-.update-book-submit-btn, 
 .book-form-submit-btn {
     height: 36px;
     width: 100px;
@@ -208,15 +194,11 @@ input[name="pages"] {
     transition: filter 0.2s;
 }
 
-.add-book-submit-btn:hover,
-.update-book-submit-btn:hover,
 .book-form-submit-btn:hover {
     cursor: pointer;
     filter: brightness(75%);
 }
 
-.add-book-submit-btn:active,
-.update-book-submit-btn:active,
 .book-form-submit-btn:active {
     filter: brightness(60%);
 }

@@ -61,6 +61,17 @@ const DOMManager = (() => {
     library.updateIsReadOfBookAt(index, updatedBook.isRead);
   }
 
+  function deleteBookElement(bookEle, index) {
+    library.getLibraryGrid().removeChild(bookEle);    // remove target book element
+
+    const bookElements = library.getAllBookElements();
+
+    // update indexes of book elements after the target book element
+    for (let i=index; i<bookElements.length-1; i++) {
+      bookElements[i].dataset["index"]--;    
+    }
+  }
+
   return {
     createApp,
     showUserInfo,
@@ -68,6 +79,7 @@ const DOMManager = (() => {
     addBookInLibraryGrid,
     clearLibraryGrid,
     updateBookInLibraryGrid,
+    deleteBookElement,
   };
 })();
 

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as authSignOut} from "firebase/auth";
-import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, where, increment } from "firebase/firestore";
 
 import DOMManager from "./dommanager.js";
 import { Book } from "./book.js";
@@ -143,6 +143,46 @@ const controller = (() => {
     }
   }
 
+  async function deleteBook(index) {
+    const targetBookId = libraryList[index][0];
+    libraryList.splice(index, 1);     // delete element located at the given index
+
+    deleteBookFromDb(targetBookId, index);
+  }
+
+  async function deleteBookFromDb(bookId, index) {
+    try {
+      await deleteDoc(doc(db, "users", getUserId(), "books", bookId));
+      await shiftIndexesAfter(index);
+      console.log("Successfully deleted book from db!");
+    } catch (error) {
+      console.error("Error: deleting book from db failed", error);
+    }
+  }
+
+  async function shiftIndexesAfter(index) {
+
+    const booksRef = collection(db, "users", getUserId(), "books");
+    try {
+      const q = query(booksRef, where("index", ">", parseInt(index)));
+      const querySnapshot = await getDocs(q);
+      // TODO refactor array
+      const bookIds = [];
+      querySnapshot.forEach(doc => {
+        // shift index by -1
+        bookIds.push(doc.id);
+        console.log(doc.data());
+      });
+      for await (const bookId of bookIds) {
+        const bookRef = doc(booksRef, bookId);
+        await updateDoc(bookRef, { index: increment(-1) });
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return {
     signIn,
     signOut,
@@ -156,6 +196,7 @@ const controller = (() => {
     clearLibrary,
     addBook,
     updateBook,
+    deleteBook,
   };
 
 })();

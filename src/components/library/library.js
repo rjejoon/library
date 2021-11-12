@@ -46,6 +46,10 @@ const library = (() => {
     return getBookElementAt(index).querySelector(`.${styles.pages}`);
   }
 
+  function getAllBookElements() {
+    return libraryGrid.querySelectorAll(`.${styles.book}`);
+  }
+
   function updateIsReadOfBookAt(index, isRead) {
     if (isRead) {
       getBookElementAt(index).querySelector(`.${styles["done-icon"]}`).classList.add(styles["done-read"]);
@@ -116,6 +120,9 @@ const library = (() => {
     });
     bookEle.querySelector(`.${styles["del-book-icon"]}`).addEventListener("click", e => {
       // TODO delete book in db and list
+      const index = bookEle.dataset["index"];
+      controller.deleteBook(index);
+      DOMManager.deleteBookElement(bookEle, index);
     });
 
     return bookEle;
@@ -206,6 +213,7 @@ const library = (() => {
     getTitleElementOfBookAt,
     getAuthorElementOfBookAt,
     getPagesElementOfBookAt,
+    getAllBookElements,
     updateIsReadOfBookAt,
     createBookElement,
   }

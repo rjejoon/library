@@ -50,15 +50,13 @@ const library = (() => {
     return libraryGrid.querySelectorAll(`.${styles.book}`);
   }
 
-  function updateIsReadOfBookAt(index, isRead) {
-    if (isRead) {
-      getBookElementAt(index).querySelector(`.${styles["done-icon"]}`).classList.add(styles["done-read"]);
-    }
+  function toggleIsReadOfBookAt(index, isRead) {
+    getBookElementAt(index).querySelector(`.${styles["done-icon"]}`).classList.toggle(styles["done-read"]);
   }
 
   function createBookElement({ title, author, pages, isRead }, index) {
     const bookEle = document.createElement("div");
-    bookEle.classList.add(styles.book);
+    bookEle.classList.add(styles.book, styles["hover-icon"]);
     bookEle.dataset["index"] = index;
 
     const bookInfoContainer = document.createElement("div");
@@ -173,7 +171,6 @@ const library = (() => {
 
       // get book info from form
       const form = bookForm.querySelector(`.${styles["book-form"]}`);
-
       const title = form.elements[0].value;
       const author = form.elements[1].value;
       const pages = form.elements[2].value;
@@ -182,27 +179,19 @@ const library = (() => {
 
       if (action.toLowerCase() == "add") {
         // add book
-
         const index = controller.getNumTotalBooks();
-
         const bookEle = createBookElement(book, index);
-
         controller.addBook(book, index);
         DOMManager.addBookInLibraryGrid(bookEle);
-
       } else {
         // update book
-
         const index = form.dataset["index"];
-
         controller.updateBook(book, index);
         DOMManager.updateBookInLibraryGrid(index);
       }
 
       document.querySelector("body").removeChild(bookForm);   // remove form from the dom
-
     });
-
     return bookForm;
   }
 
@@ -214,7 +203,7 @@ const library = (() => {
     getAuthorElementOfBookAt,
     getPagesElementOfBookAt,
     getAllBookElements,
-    updateIsReadOfBookAt,
+    toggleIsReadOfBookAt,
     createBookElement,
   }
 })();

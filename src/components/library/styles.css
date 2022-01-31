@@ -34,18 +34,16 @@
 .add-book {
     border: 2px dashed #000000;
     background: rgba(255, 255, 255, 0.13);
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     font-size: 24px;
+    cursor: pointer;
 }
 
 .rotate-icon {
     transform: rotate(20deg);
 }
-
 
 .book-info-container {
     width: 100%;
@@ -106,17 +104,30 @@
 }
 
 .add-book-icon:hover {
-    cursor: pointer;
     transform: scale(1.1);
 }
 
 .done-icon {
     color: #B2B2B2;
+    transition: transform 0.2s;
 }
 
-.done-icon.done-read {
-    color: green;
+.done-icon:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+}
 
+.done-read {
+    color: green;
+}
+
+.del-book-icon {
+    transition: transform 0.2s;
+}
+
+.del-book-icon:hover {
+    cursor: pointer;
+    transform: scale(1.1);
 }
 
 /*  form rules  */

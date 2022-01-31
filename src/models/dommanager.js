@@ -58,7 +58,7 @@ const DOMManager = (() => {
     library.getTitleElementOfBookAt(index).textContent = updatedBook.title;
     library.getAuthorElementOfBookAt(index).textContent = updatedBook.author;
     library.getPagesElementOfBookAt(index).textContent = `${updatedBook.pages} pages`;
-    library.updateIsReadOfBookAt(index, updatedBook.isRead);
+    library.toggleIsReadOfBookAt(index, updatedBook.isRead);
   }
 
   function deleteBookElement(bookEle, index) {

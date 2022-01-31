@@ -53,13 +53,10 @@ const controller = (() => {
         // user signed in
         clearLibrary();
         DOMManager.showUserInfo(getProfilePicUrl());
-
         retrieveBooksFromDb();
-
       } else {
         // user not signed in
         DOMManager.hideUserInfo();
-
         clearLibrary();
       }
     });

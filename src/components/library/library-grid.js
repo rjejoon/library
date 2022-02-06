@@ -145,11 +145,14 @@ const libraryGrid = (() => {
       }
     });
     bookEle.querySelector(`.${styles["done-icon"]}`).addEventListener("click", e => {
-      // TODO update isRead
+      // toggle isRead
+      const book = controller.getBookAt(index);
+      const doneIcon = getBookElementAt(index).querySelector(`.${styles["done-icon"]}`);
+      doneIcon.classList.toggle(styles["done-read"]);
+      book.isRead = doneIcon.classList.contains(styles["done-read"]);
+      controller.updateBook(book, index);
     });
     bookEle.querySelector(`.${styles["del-book-icon"]}`).addEventListener("click", e => {
-      // TODO delete book in db and list
-      const index = bookEle.dataset["index"];
       controller.deleteBook(index);
     });
 

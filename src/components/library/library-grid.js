@@ -1,37 +1,36 @@
 import styles from "./styles.css";
 
-import controller from "../../models/controller";
+import controller from "../../controllers/controller";
 import { Book } from "../../models/book";
-import DOMManager from "../../models/dommanager";
 
-const library = (() => {
+const libraryGrid = (() => {
 
-  const libraryGrid = document.createElement("div");
-  libraryGrid.classList.add(styles["library-grid"]);
+  const grid = document.createElement("div");
+  grid.classList.add(styles["library-grid"]);
 
-  libraryGrid.innerHTML = `
+  grid.innerHTML = `
     <div class="${styles.book} ${styles["add-book"]}">
       <span class="material-icons ${styles["add-book-icon"]}">add</span>
     </div>
   `;
 
   // display add book form when add book element is clicked
-  const addBookElement = libraryGrid.querySelector(`.${styles["add-book"]}`)
+  const addBookElement = grid.querySelector(`.${styles["add-book"]}`);
   addBookElement.addEventListener("click", e => {
     const body = document.querySelector("body");
     body.appendChild(getFormElement("add"));
   });
 
   function getLibraryGrid() {
-    return libraryGrid;
+    return grid;
   }
 
   function getAddBookElement() {
-    return libraryGrid.querySelector(`.${styles["add-book"]}`);
+    return addBookElement;
   }
 
   function getBookElementAt(index) {
-    return libraryGrid.querySelector(`.${styles.book}[data-index="${index}"]`);
+    return grid.querySelector(`.${styles.book}[data-index="${index}"]`);
   }
 
   function getTitleElementOfBookAt(index) {
@@ -47,11 +46,43 @@ const library = (() => {
   }
 
   function getAllBookElements() {
-    return libraryGrid.querySelectorAll(`.${styles.book}`);
+    return grid.querySelectorAll(`.${styles.book}`);
   }
 
-  function toggleIsReadOfBookAt(index, isRead) {
-    getBookElementAt(index).querySelector(`.${styles["done-icon"]}`).classList.toggle(styles["done-read"]);
+  function setIsReadOfBookAt(index, isRead) {
+    const doneIcon = getBookElementAt(index).querySelector(`.${styles["done-icon"]}`);
+    if (isRead) {
+      doneIcon.classList.add(styles["done-read"]);
+    } else {
+      doneIcon.classList.remove(styles["done-read"]);
+    }
+  }
+
+  function addBookElementAt(book, index) {
+    grid.insertBefore(createBookElement(book, index), addBookElement);
+  }
+
+  function updateBookElementAt(index, updatedBook) {
+    getTitleElementOfBookAt(index).textContent = updatedBook.title;
+    getAuthorElementOfBookAt(index).textContent = updatedBook.author;
+    getPagesElementOfBookAt(index).textContent = `${updatedBook.pages} pages`;
+    setIsReadOfBookAt(index, updatedBook.isRead);
+  }
+
+  function deleteBookElementAt(index) {
+    grid.removeChild(getBookElementAt(index));    // remove target book element
+
+    // update indexes of book elements after the target book element
+    const bookElements = getAllBookElements();
+    for (let i=index; i<bookElements.length-1; i++) {
+      --bookElements[i].dataset["index"];    
+    }
+  }
+
+  function clearGrid() {
+    for (let bookEle=grid.firstElementChild; bookEle!=addBookElement; bookEle=grid.firstElementChild) {
+      grid.removeChild(bookEle);
+    }
   }
 
   function createBookElement({ title, author, pages, isRead }, index) {
@@ -102,7 +133,7 @@ const library = (() => {
         const form = formEle.querySelector(`.${styles["book-form"]}`);
 
         // TODO refactor
-        const book = controller.getBookFromListAt(index);
+        const book = controller.getBookAt(index);
         form.elements[0].value = book.title;
         form.elements[1].value = book.author;
         form.elements[2].value = book.pages;
@@ -120,7 +151,6 @@ const library = (() => {
       // TODO delete book in db and list
       const index = bookEle.dataset["index"];
       controller.deleteBook(index);
-      DOMManager.deleteBookElement(bookEle, index);
     });
 
     return bookEle;
@@ -180,14 +210,11 @@ const library = (() => {
       if (action.toLowerCase() == "add") {
         // add book
         const index = controller.getNumTotalBooks();
-        const bookEle = createBookElement(book, index);
         controller.addBook(book, index);
-        DOMManager.addBookInLibraryGrid(bookEle);
       } else {
         // update book
         const index = form.dataset["index"];
         controller.updateBook(book, index);
-        DOMManager.updateBookInLibraryGrid(index);
       }
 
       document.querySelector("body").removeChild(bookForm);   // remove form from the dom
@@ -197,16 +224,12 @@ const library = (() => {
 
   return {
     getLibraryGrid,
-    getAddBookElement,
-    getBookElementAt,
-    getTitleElementOfBookAt,
-    getAuthorElementOfBookAt,
-    getPagesElementOfBookAt,
-    getAllBookElements,
-    toggleIsReadOfBookAt,
-    createBookElement,
+    addBookElementAt,
+    updateBookElementAt,
+    deleteBookElementAt,
+    clearGrid,
   }
 })();
 
 
-export default library;
+export default libraryGrid;

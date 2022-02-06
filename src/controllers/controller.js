@@ -1,15 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as authSignOut} from "firebase/auth";
 import { getFirestore, doc, collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, where, increment } from "firebase/firestore";
 
-import DOMManager from "./dommanager.js";
-import { Book } from "./book.js";
-import library from "../components/library/library.js";
+import { Book } from "../models/book.js";
+import library from "../models/library.js";
+
+import authManager from "../auth-manager.js";
 
 
 const controller = (() => {
-
-  const libraryList = [];
 
   const firebaseConfig = {
     apiKey: "AIzaSyC1jdymiNr6d_Y-WGj2jAHioWrUYrUTGcs",
@@ -23,99 +21,45 @@ const controller = (() => {
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore();
-  const auth = getAuth();
-  const provider = new GoogleAuthProvider();
-
-  function signIn() {
-    signInWithPopup(auth, provider)
-      .then(result => {
-        console.log("Sign in successful");
-      }).catch(error => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.email;
-        console.error("error", errorCode, errorMessage, email);
-      });
-  }
-
-  function signOut() {
-    authSignOut(auth)
-      .then(() => {
-        console.log("Sign out successful");
-      }).catch(error => {
-        console.log("error: sign out unsuccessful");
-      })
-  }
-
-  async function getAuthStateObserver() {
-    return onAuthStateChanged(auth, user => {
-      if (user) {
-        // user signed in
-        clearLibrary();
-        DOMManager.showUserInfo(getProfilePicUrl());
-        retrieveBooksFromDb();
-      } else {
-        // user not signed in
-        DOMManager.hideUserInfo();
-        clearLibrary();
-      }
-    });
-  }
-
-  function getProfilePicUrl() {
-    // TODO add default profile picture
-    return auth.currentUser.photoURL;
-  }
-
-  function getUsername() {
-    return auth.currentUser.displayName;
-  }
-
-  function getUserId() {
-    return auth.currentUser.uid;
-  }
 
   function getNumTotalBooks() {
-    return libraryList.length;
+    return library.getLength();
   }
 
-  function getBookFromListAt(index) {
-    return libraryList[index][1];
+  function getBookIdAt(index) {
+    return library.getBookIdAt(index);
+  }
+
+  function getBookAt(index) {
+    return library.getBookAt(index)
   }
 
   async function retrieveBooksFromDb() {
-    const booksRef = collection(db, "users", getUserId(), "books");
+    const booksRef = collection(db, "users", authManager.getUserId(), "books");
     const q = query(booksRef, orderBy("index"));
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach(doc => {
       const data = doc.data();
-
       const book = new Book(data.title, data.author, data.pages, data.isRead);
-      const bookEle = library.createBookElement(book, data.index);
       
-      libraryList.push([doc.id, book]);
-      DOMManager.addBookInLibraryGrid(bookEle);
+      library.push(doc.id, book);
     });
   }
 
   function clearLibrary() {
-    const numBooks = libraryList.length;
-    libraryList.length = 0;   // clear list
-
-    DOMManager.clearLibraryGrid(numBooks);
+    library.clear();
   }
 
   async function addBook(book, index) {
-
     try {
-      const booksRef = collection(db, "users", getUserId(), "books");
+      const booksRef = collection(db, "users", authManager.getUserId(), "books");
       // Add a new book document with a generated id
       const bookRef = await addDoc(booksRef, { 
         ...book,
         index,
       });
-      libraryList.push([bookRef.id, book]);
+      library.push(bookRef.id, book);
       console.log("Book document stored in db with id: ", bookRef.id);
     } catch (error) {
       console.error("Error: adding book doc in db failed", error);
@@ -123,14 +67,15 @@ const controller = (() => {
   }
 
   async function updateBook(updatedBook, index) {
-    const book = libraryList[index][1];
+    const book = getBookAt(index);
     book.title = updatedBook.title;
     book.author = updatedBook.author;
     book.pages = updatedBook.pages;
     book.isRead = updatedBook.isRead;
 
+    library.replaceBookAt(index, updatedBook);
     try {
-      const bookRef = doc(db, "users", getUserId(), "books", libraryList[index][0]);
+      const bookRef = doc(db, "users", authManager.getUserId(), "books", getBookIdAt(index));
       await updateDoc(bookRef, { 
         ...updatedBook
       });
@@ -141,15 +86,14 @@ const controller = (() => {
   }
 
   async function deleteBook(index) {
-    const targetBookId = libraryList[index][0];
-    libraryList.splice(index, 1);     // delete element located at the given index
-
+    const targetBookId = getBookIdAt(index);
+    library.deleteAt(index);
     deleteBookFromDb(targetBookId, index);
   }
 
   async function deleteBookFromDb(bookId, index) {
     try {
-      await deleteDoc(doc(db, "users", getUserId(), "books", bookId));
+      await deleteDoc(doc(db, "users", authManager.getUserId(), "books", bookId));
       await shiftIndexesAfter(index);
       console.log("Successfully deleted book from db!");
     } catch (error) {
@@ -159,7 +103,7 @@ const controller = (() => {
 
   async function shiftIndexesAfter(index) {
 
-    const booksRef = collection(db, "users", getUserId(), "books");
+    const booksRef = collection(db, "users", authManager.getUserId(), "books");
     try {
       const q = query(booksRef, where("index", ">", parseInt(index)));
       const querySnapshot = await getDocs(q);
@@ -168,7 +112,6 @@ const controller = (() => {
       querySnapshot.forEach(doc => {
         // shift index by -1
         bookIds.push(doc.id);
-        console.log(doc.data());
       });
       for await (const bookId of bookIds) {
         const bookRef = doc(booksRef, bookId);
@@ -181,14 +124,9 @@ const controller = (() => {
   }
 
   return {
-    signIn,
-    signOut,
-    getAuthStateObserver,
-    getProfilePicUrl,
-    getUsername,
-    getUserId,
     getNumTotalBooks,
-    getBookFromListAt,
+    getBookIdAt,
+    getBookAt,
     retrieveBooksFromDb,
     clearLibrary,
     addBook,

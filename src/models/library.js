@@ -26,7 +26,7 @@ const library = (() => {
   function push(id, book) {
     const index = getLength();
     libList.push([id, book]);
-    libraryGrid.addBookElementAt(book, index);
+    libraryGrid.pushBookElement(book, index);
   };
 
   /**

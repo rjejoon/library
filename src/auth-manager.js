@@ -21,6 +21,11 @@ const authManager = (() => {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
 
+  /**
+   * Signs in the user using the Firebase Auth.
+   * 
+   * Providers: Google
+   */
   function signIn() {
     signInWithPopup(auth, provider)
       .then(result => {
@@ -33,26 +38,36 @@ const authManager = (() => {
       });
   }
 
+  /**
+   * Signs out from the Firebase Auth.
+   */
   function signOut() {
     authSignOut(auth)
       .then(() => {
         console.log("Sign out successful");
       }).catch(error => {
         console.log("error: sign out unsuccessful");
-      })
+      });
   }
 
+  function isUserSignedIn() {
+    return auth.currentUser;
+  }
+
+  /**
+   * Returns an auth state observer.
+   * @returns an auth state observer
+   */
   async function getAuthStateObserver() {
-    return onAuthStateChanged(auth, user => {
+    return onAuthStateChanged(auth, async (user) => {
+      controller.clearLibrary();
+      await controller.retrieveBooks();
       if (user) {
         // user signed in
-        controller.clearLibrary();
         appManager.showUserInfo(getProfilePicUrl());
-        controller.retrieveBooksFromDb();
       } else {
         // user not signed in
         appManager.hideUserInfo();
-        controller.clearLibrary();
       }
     });
   }
@@ -73,12 +88,12 @@ const authManager = (() => {
   return {
     signIn,
     signOut,
+    isUserSignedIn,
     getAuthStateObserver,
     getProfilePicUrl,
     getUsername,
     getUserId,
   };
-
 })();
 
 

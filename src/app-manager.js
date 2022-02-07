@@ -7,6 +7,9 @@ const appManager = (() => {
 
   const body = document.querySelector("body");
 
+  /**
+   * On called, it generates the DOM elements for the app.
+   */
   function createApp() {
     const mainElement = document.createElement("main");
     mainElement.appendChild(libraryGrid.getLibraryGrid());
@@ -24,6 +27,11 @@ const appManager = (() => {
     authManager.getAuthStateObserver();    
   }
 
+  /**
+   * Reveals the user information in the navbar.
+   * 
+   * @param {string} profilePicURL 
+   */
   function showUserInfo(profilePicURL) {
 
     navbar.getSignInBtn().setAttribute("hidden", "true");   // hide sign in button
@@ -34,6 +42,9 @@ const appManager = (() => {
     navbar.getProfileImageElement().style.backgroundImage = `url(${profilePicURL})`;
   }
 
+  /**
+   * Hides the user information from the navbar.
+   */
   function hideUserInfo() {
     navbar.getSignOutBtn().setAttribute("hidden", "true");   // hide sign out button
     navbar.getProfileImageElement().setAttribute("hidden", "true");

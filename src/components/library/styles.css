@@ -185,10 +185,6 @@
     margin: 0;
 }
 
-input[name="pages"] {
-    width: 30%;
-}
-
 .book-form-submit-container {
     width: 100%;
     display: flex;
@@ -218,5 +214,17 @@ input[name="pages"] {
     font-size: 1.75em;
     color: #555555;
     height: 20%;
+}
+
+.input-title {
+    width: 100%;
+}
+
+.input-author {
+    width: 100%;
+}
+
+.input-pages {
+    width: 30%;
 }
 

@@ -204,15 +204,15 @@ const libraryGrid = (() => {
     const bookForm = document.createElement("div");
     bookForm.classList.add(styles["book-form-background"]);
 
-    bookForm.innerHTML = `<form action="" class="${styles["book-form"]}">
+    bookForm.innerHTML = `<form class="${styles["book-form"]}">
         <div class="${styles["form-title"]}">${action} Book</div>
         <div class="${styles["form-items-container"]}">
           <label for="title">Title</label>
-          <input type="text" class="${styles["input-title"]}" name="title">
+          <input type="text" class="${styles["input-title"]}" name="title" required minlength="1">
           <label for="author">Author</label>
-          <input type="text" class="${styles["input-author"]}" name="author">
+          <input type="text" class="${styles["input-author"]}" name="author" required minlength="1">
           <label for="pages">Pages</label>
-          <input type="number" class="${styles["input-pages"]}" name="pages" min="1">
+          <input type="number" class="${styles["input-pages"]}" name="pages" min="1" required>
           <div class="${styles["is-read-container"]}">
             <label for="is-read">Read?</label>
             <input type="checkbox" class="${styles["input-is-read"]}" name="is-read">
@@ -234,7 +234,13 @@ const libraryGrid = (() => {
     bookForm.querySelector(`.${styles["book-form-submit-btn"]}`).addEventListener("click", e => {
       e.preventDefault();
 
-      // TODO input validation
+      const isTitleValid = checkTitleInput(); 
+      const isAuthorValid = checkAuthorInput() 
+      const isPagesValid = checkPagesInput();
+
+      if (!(isTitleValid && isAuthorValid && isPagesValid)) {
+        return;
+      }
 
       // get book info from form
       const form = bookForm.querySelector(`.${styles["book-form"]}`);
@@ -256,7 +262,41 @@ const libraryGrid = (() => {
 
       document.querySelector("body").removeChild(bookForm);   // remove form from the dom
     });
+
     return bookForm;
+  }
+
+  function checkTitleInput() {
+    const titleInput = document.querySelector(`.${styles["input-title"]}`);
+    titleInput.setCustomValidity("");
+    if (titleInput.validity.valueMissing) {
+      titleInput.setCustomValidity("Title is required!");
+      titleInput.reportValidity();
+    } 
+    return titleInput.validity.valid;
+  }
+
+  function checkAuthorInput() {
+    const authorInput = document.querySelector(`.${styles["input-author"]}`);
+    authorInput.setCustomValidity("");
+    if (authorInput.validity.valueMissing) {
+      authorInput.setCustomValidity("Name of the author is required!");
+      authorInput.reportValidity();
+    } 
+    return authorInput.validity.valid;
+  }
+
+  function checkPagesInput() {
+    const pagesInput = document.querySelector(`.${styles["input-pages"]}`);
+    pagesInput.setCustomValidity("");
+    if (pagesInput.validity.valueMissing) {
+      pagesInput.setCustomValidity("Pages required!");
+      pagesInput.reportValidity();
+    } else if (pagesInput.validity.rangeUnderflow) {
+      pagesInput.setCustomValidity("Pages must be at least 1!");
+      pagesInput.reportValidity();
+    }
+    return pagesInput.validity.valid;
   }
 
   return {

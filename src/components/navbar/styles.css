@@ -45,6 +45,7 @@
     height: 36px;
     border-radius: 50%;
 
+    background-image: url("../../images/default-profile-pic.svg");  /* default profile pic */
     background-position: center;
     background-size: 36px 36px;
 }

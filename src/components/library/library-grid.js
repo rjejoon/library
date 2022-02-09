@@ -207,15 +207,15 @@ const libraryGrid = (() => {
     bookForm.innerHTML = `<form class="${styles["book-form"]}">
         <div class="${styles["form-title"]}">${action} Book</div>
         <div class="${styles["form-items-container"]}">
-          <label for="title">Title</label>
-          <input type="text" class="${styles["input-title"]}" name="title" required minlength="1">
-          <label for="author">Author</label>
-          <input type="text" class="${styles["input-author"]}" name="author" required minlength="1">
-          <label for="pages">Pages</label>
-          <input type="number" class="${styles["input-pages"]}" name="pages" min="1" required>
+          <label for="${styles.title}">Title<span class="${styles["error"]}"></span></label>
+          <input type="text" id="${styles.title}" name="title" required minlength="1">
+          <label for="${styles.author}">Author<span class="${styles["error"]}"></span></label>
+          <input type="text" id="${styles.author}" name="author" required minlength="1">
+          <label for="${styles.pages}">Pages<span class="${styles["error"]}"></span></label>
+          <input type="number" id="${styles.pages}" name="pages" min="1" required>
           <div class="${styles["is-read-container"]}">
-            <label for="is-read">Read?</label>
-            <input type="checkbox" class="${styles["input-is-read"]}" name="is-read">
+            <label for="${styles["is-read"]}">Read?</label>
+            <input type="checkbox" id="${styles["is-read"]}" name="is-read">
           </div>
         </div>
         <div class="${styles["book-form-submit-container"]}">
@@ -267,34 +267,33 @@ const libraryGrid = (() => {
   }
 
   function checkTitleInput() {
-    const titleInput = document.querySelector(`.${styles["input-title"]}`);
-    titleInput.setCustomValidity("");
+    const titleInput = document.querySelector(`#${styles.title}`);
+    const titleError = document.querySelector(`label[for=${styles.title}] > span.${styles.error}`);
+    titleError.textContent = "";
     if (titleInput.validity.valueMissing) {
-      titleInput.setCustomValidity("Title is required!");
-      titleInput.reportValidity();
+      titleError.textContent = "Title is required!";
     } 
     return titleInput.validity.valid;
   }
 
   function checkAuthorInput() {
-    const authorInput = document.querySelector(`.${styles["input-author"]}`);
-    authorInput.setCustomValidity("");
+    const authorInput = document.querySelector(`#${styles.author}`);
+    const authorError = document.querySelector(`label[for=${styles.author}] > span.${styles.error}`);
+    authorError.textContent = "";
     if (authorInput.validity.valueMissing) {
-      authorInput.setCustomValidity("Name of the author is required!");
-      authorInput.reportValidity();
+      authorError.textContent = "Name of the author is required!";
     } 
     return authorInput.validity.valid;
   }
 
   function checkPagesInput() {
-    const pagesInput = document.querySelector(`.${styles["input-pages"]}`);
-    pagesInput.setCustomValidity("");
+    const pagesInput = document.querySelector(`#${styles.pages}`);
+    const pagesError = document.querySelector(`label[for=${styles.pages}] > span.${styles.error}`);
+    pagesError.textContent = "";
     if (pagesInput.validity.valueMissing) {
-      pagesInput.setCustomValidity("Pages required!");
-      pagesInput.reportValidity();
+      pagesError.textContent = "Pages required!";
     } else if (pagesInput.validity.rangeUnderflow) {
-      pagesInput.setCustomValidity("Pages must be at least 1!");
-      pagesInput.reportValidity();
+      pagesError.textContent = "Pages must be at least 1!";
     }
     return pagesInput.validity.valid;
   }

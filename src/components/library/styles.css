@@ -180,7 +180,7 @@
     height: 20px;
 }
 
-.input-is-read {
+#is-read {
     display: inline;
     margin: 0;
 }
@@ -216,15 +216,21 @@
     height: 20%;
 }
 
-.input-title {
+#title {
     width: 100%;
 }
 
-.input-author {
+#author {
     width: 100%;
 }
 
-.input-pages {
+#pages {
     width: 30%;
+}
+
+.error {
+    font-size: 0.85em;
+    color: #f74848;
+    padding-left: 0.75em;
 }
 

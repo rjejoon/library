@@ -4,8 +4,6 @@ import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signO
 import appManager from "./app-manager.js";
 import controller from "./controllers/controller.js";
 
-import defaultProfilePic from "svg-url-loader!./images/default-profile-pic.svg";
-
 
 const authManager = (() => {
 

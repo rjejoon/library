@@ -2,14 +2,15 @@
   position: absolute;
   top: var(--nav-height);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(176px, 200px));
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  grid-template-rows: repeat(auto-fill, 250px);
   grid-gap: 1.3em 1.7em;
 
   width: 100vw;
   min-height: calc(100% - var(--nav-height));
   background-color: #FCF6F5;
 
-  padding: 50px 100px;
+  padding: 4vh 40px;
 }
 
 .book {

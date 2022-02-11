@@ -1,17 +1,12 @@
 :root {
-    --nav-height: 7vh;
+    --nav-height: 65px;
 }
 
 * {
     box-sizing: border-box;
 }
 
-html {
-    width: 100%;
-    height: 100%;
-}
-
-body {
+html, body {
     width: 100%;
     height: 100%;
 }

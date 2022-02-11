@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/rjejoon/library#readme",
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
+    "@babel/core": "^7.17.2",
+    "@babel/preset-env": "^7.16.11",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
     "babel-loader": "^8.2.3",
@@ -33,7 +33,7 @@
     "mini-css-extract-plugin": "^2.5.3",
     "style-loader": "^3.3.1",
     "svg-url-loader": "^7.1.1",
-    "webpack": "^5.61.0",
+    "webpack": "^5.68.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.4"
   },

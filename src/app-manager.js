@@ -28,7 +28,7 @@ const appManager = (() => {
   }
 
   /**
-   * Reveals the user information in the navbar.
+   * Reveals the user information on the navbar.
    * 
    * @param {string} profilePicURL 
    */

@@ -45,6 +45,12 @@ const libraryGrid = (() => {
     return grid.querySelectorAll(`.${styles.book}`);
   }
 
+  /**
+   * Set isRead of the Book element located at index
+   * 
+   * @param {number} index 
+   * @param {boolean} isRead 
+   */
   function setIsReadOfBookAt(index, isRead) {
     const doneIcon = getBookElementAt(index).querySelector(`.${styles["done-icon"]}`);
     if (isRead) {
@@ -111,7 +117,7 @@ const libraryGrid = (() => {
    */
   function createBookElement({ title, author, pages, isRead }, index) {
     const bookEle = document.createElement("div");
-    bookEle.classList.add(styles.book, styles["hover-icon"]);
+    bookEle.classList.add(styles.book);
     bookEle.dataset["index"] = index;
 
     const bookInfoContainer = document.createElement("div");

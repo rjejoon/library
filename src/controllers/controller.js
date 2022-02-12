@@ -61,6 +61,11 @@ const controller = (() => {
     }
   }
 
+  /**
+   * If there is one or more Book objects in the LocalStorage, store them
+   * into the user's database storage.
+   * The LocalStorage is then cleared.
+   */
   async function migrateLocalStorage() {
     const tempLibrary = [];
     for (let i=0; i<myStorage.length; i++) {
